@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " G ",
+    "GPG",
+    " B "
+  ],
+  "key": {
+    "G": { "item": "minecraft:glass_pane" },
+    "P": { "item": "minecraft:blaze_powder" },
+    "B": { "item": "minecraft:iron_ingot" }
+  },
+  "result": {
+    "id": "bodyhealth:morphine_syringe",
+    "count": 2
+  }
+}

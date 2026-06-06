@@ -1,0 +1,117 @@
+{
+  "hurt_head": {
+    "subtitle": "Douleur à la tête",
+    "sounds": [
+      {
+        "name": "minecraft:entity.player.hurt",
+        "pitch": 1.4,
+        "volume": 0.9
+      },
+      {
+        "name": "minecraft:entity.player.hurt",
+        "pitch": 1.5,
+        "volume": 0.8
+      }
+    ]
+  },
+  "hurt_torso": {
+    "subtitle": "Douleur au torse",
+    "sounds": [
+      {
+        "name": "minecraft:entity.player.hurt",
+        "pitch": 1.0,
+        "volume": 1.0
+      },
+      {
+        "name": "minecraft:entity.player.hurt",
+        "pitch": 0.9,
+        "volume": 1.0
+      }
+    ]
+  },
+  "hurt_arm": {
+    "subtitle": "Douleur au bras",
+    "sounds": [
+      {
+        "name": "minecraft:entity.player.hurt",
+        "pitch": 1.2,
+        "volume": 0.8
+      },
+      {
+        "name": "minecraft:entity.player.hurt",
+        "pitch": 1.1,
+        "volume": 0.7
+      }
+    ]
+  },
+  "hurt_leg": {
+    "subtitle": "Douleur à la jambe",
+    "sounds": [
+      {
+        "name": "minecraft:entity.player.hurt",
+        "pitch": 0.7,
+        "volume": 0.9
+      },
+      {
+        "name": "minecraft:entity.player.hurt",
+        "pitch": 0.6,
+        "volume": 1.0
+      }
+    ]
+  },
+  "fracture_crack": {
+    "subtitle": "Craquement d'os",
+    "sounds": [
+      {
+        "name": "minecraft:entity.player.hurt_on_fire",
+        "pitch": 0.5,
+        "volume": 1.0
+      },
+      {
+        "name": "minecraft:entity.player.hurt",
+        "pitch": 0.4,
+        "volume": 0.9
+      }
+    ]
+  },
+  "fracture_shatter": {
+    "subtitle": "Os broyé",
+    "sounds": [
+      {
+        "name": "minecraft:entity.player.hurt_on_fire",
+        "pitch": 0.3,
+        "volume": 1.2
+      },
+      {
+        "name": "minecraft:entity.player.death",
+        "pitch": 0.5,
+        "volume": 0.6
+      }
+    ]
+  },
+  "adrenaline_start": {
+    "subtitle": "Montée d'adrénaline",
+    "sounds": [
+      {
+        "name": "minecraft:entity.player.levelup",
+        "pitch": 1.8,
+        "volume": 0.6
+      }
+    ]
+  },
+  "adrenaline_crash": {
+    "subtitle": "Crash d'adrénaline",
+    "sounds": [
+      {
+        "name": "minecraft:entity.player.hurt",
+        "pitch": 0.3,
+        "volume": 0.5
+      },
+      {
+        "name": "minecraft:block.stone.hit",
+        "pitch": 0.4,
+        "volume": 0.3
+      }
+    ]
+  }
+}

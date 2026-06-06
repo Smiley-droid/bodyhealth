@@ -1,0 +1,33 @@
+modLoader = "javafml"
+loaderVersion = "[4,)"
+license = "MIT"
+
+[[mods]]
+    modId = "bodyhealth"
+    version = "12.2.0"
+    displayName = "Body Health System"
+logoFile = "assets/bodyhealth/icon.png"
+    description = '''
+        Système de santé par partie du corps inspiré de RLCraft.
+        Hitbox localisée, fractures, adrénaline et plus encore.
+    '''
+    authors = "BodyHealth Team"
+
+# BUG 4 FIX — Format de dépendances NeoForge 1.21.1 :
+# Les tables [[dependencies.X]] doivent être au niveau RACINE du fichier,
+# PAS imbriquées dans [[mods]] comme [[mods.dependencies.X]].
+# L'ancien format était ignoré silencieusement → pas de vérification de version.
+
+[[dependencies.bodyhealth]]
+    modId = "neoforge"
+    type = "required"
+    versionRange = "[21.1,)"
+    ordering = "NONE"
+    side = "BOTH"
+
+[[dependencies.bodyhealth]]
+    modId = "minecraft"
+    type = "required"
+    versionRange = "[1.21.1,1.22)"
+    ordering = "NONE"
+    side = "BOTH"

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "SWS",
+    "WSW",
+    "SWS"
+  ],
+  "key": {
+    "W": { "item": "minecraft:white_wool" },
+    "S": { "item": "minecraft:string" }
+  },
+  "result": {
+    "id": "bodyhealth:bandage",
+    "count": 4
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "itemGroup.bodyhealth": "Body Health System",
+  "item.bodyhealth.bandage": "Bandage",
+  "item.bodyhealth.medical_kit": "Medical Kit",
+  "item.bodyhealth.morphine_syringe": "Morphine Syringe",
+  "item.bodyhealth.survival_guide": "Survival Guide",
+  "subtitles.bodyhealth.hurt_head": "Head pain",
+  "subtitles.bodyhealth.hurt_torso": "Torso pain",
+  "subtitles.bodyhealth.hurt_arm": "Arm pain",
+  "subtitles.bodyhealth.hurt_leg": "Leg pain",
+  "subtitles.bodyhealth.fracture_crack": "Bone crack",
+  "subtitles.bodyhealth.fracture_shatter": "Bone shattered",
+  "subtitles.bodyhealth.adrenaline_start": "Adrenaline rush",
+  "subtitles.bodyhealth.adrenaline_crash": "Adrenaline crash",
+  "key.bodyhealth.hud_settings": "HUD Settings",
+  "key.categories.bodyhealth": "Body Health"
+}
