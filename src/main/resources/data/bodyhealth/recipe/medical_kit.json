@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "GBG",
+    "BMB",
+    "GBG"
+  ],
+  "key": {
+    "G": { "item": "minecraft:gold_ingot" },
+    "B": { "item": "bodyhealth:bandage" },
+    "M": { "item": "minecraft:chest" }
+  },
+  "result": {
+    "id": "bodyhealth:medical_kit",
+    "count": 1
+  }
+}
