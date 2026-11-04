@@ -271,12 +271,15 @@ public class DamageEventHandler {
     private final Map<UUID, Map<String,Long>> msgCooldowns = new HashMap<>();
     private static final long MSG_CD = 3000L;
 
-    private void sendMsg(ServerPlayer player, String key, String msg) {
+    private void sendMsg(ServerPlayer player, String key) {
+        if (!BodyHealthConfig.ACTION_BAR_MESSAGES.get()) return; // option serveur "actionBarMessages"
         long now = System.currentTimeMillis();
         msgCooldowns.computeIfAbsent(player.getUUID(), k -> new HashMap<>());
         if (now - msgCooldowns.get(player.getUUID()).getOrDefault(key, 0L) < MSG_CD) return;
         msgCooldowns.get(player.getUUID()).put(key, now);
-        player.displayClientMessage(net.minecraft.network.chat.Component.literal(msg), true);
+        // Clé de traduction : le client affiche le message dans SA langue
+        player.displayClientMessage(
+            net.minecraft.network.chat.Component.translatable("bodyhealth.msg." + key), true);
     }
 
     private void sendDamageMessage(ServerPlayer player, BodyPart hitPart, BodyHealthData data) {
@@ -286,30 +289,24 @@ public class DamageEventHandler {
 
         switch (hitPart) {
             case HEAD -> {
-                if (dead)       sendMsg(player, "head_dead", "§4✟ Tête détruite...");
-                else if (crit)  sendMsg(player, "head_crit", "§c☠ Tête critique — soignez-vous immédiatement !");
+                if (dead)       sendMsg(player, "head_dead");
+                else if (crit)  sendMsg(player, "head_crit");
             }
             case TORSO -> {
-                if (dead)       sendMsg(player, "torso_dead", "§4✟ Torse détruit...");
-                else if (crit)  sendMsg(player, "torso_crit", "§c☠ Torse critique — danger de mort imminent !");
+                if (dead)       sendMsg(player, "torso_dead");
+                else if (crit)  sendMsg(player, "torso_crit");
             }
             case ARM_RIGHT -> {
-                if (dead) {
-                    sendMsg(player, "arm_r_dead", "§c☠ Bras droit détruit — vous ne pouvez plus agir !");
-                }
+                if (dead) sendMsg(player, "arm_r_dead");
             }
             case ARM_LEFT -> {
                 if (dead) {
                     if (BodyHealthConfig.ENABLE_OFFHAND_DROP.get()) dropOffhandItem(player);
-                    sendMsg(player, "arm_l_dead", "§c☠ Bras gauche détruit — vous lâchez votre objet secondaire !");
+                    sendMsg(player, "arm_l_dead");
                 }
             }
-            case LEG_LEFT, LEG_RIGHT -> {
-                if (dead) {
-                    String leg = hitPart == BodyPart.LEG_LEFT ? "Jambe gauche" : "Jambe droite";
-                    sendMsg(player, "leg_dead", "§c☠ " + leg + " détruite — impossible de courir !");
-                }
-            }
+            case LEG_LEFT  -> { if (dead) sendMsg(player, "leg_l_dead"); }
+            case LEG_RIGHT -> { if (dead) sendMsg(player, "leg_r_dead"); }
         }
     }
 

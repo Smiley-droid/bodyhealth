@@ -29,6 +29,7 @@ public class BodyHealthMod {
     public BodyHealthMod(IEventBus modEventBus, ModContainer container) {
         this.modEventBus = modEventBus;
         container.registerConfig(ModConfig.Type.SERVER, BodyHealthConfig.SPEC);
+        container.registerConfig(ModConfig.Type.CLIENT, com.bodyhealth.config.BodyHealthClientConfig.SPEC);
 
         // Registres
         BodyHealthAttachment.ATTACHMENT_TYPES.register(modEventBus);

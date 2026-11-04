@@ -8,6 +8,7 @@ public class BodyHealthConfig {
     public static final ModConfigSpec SPEC;
 
     public static final ModConfigSpec.BooleanValue ENABLED;
+    public static final ModConfigSpec.BooleanValue ACTION_BAR_MESSAGES;
     public static final ModConfigSpec.IntValue     STARTING_HEARTS;
     public static final ModConfigSpec.BooleanValue ENABLE_NAUSEA;
     public static final ModConfigSpec.BooleanValue ENABLE_SLOWNESS;
@@ -32,6 +33,10 @@ public class BodyHealthConfig {
                          "Set to false to fully deactivate the mod without uninstalling it.",
                          "Players will use vanilla health when disabled.")
                 .define("enabled", true);
+        ACTION_BAR_MESSAGES = BUILDER
+                .comment("Show warning messages above the hotbar when a body part becomes critical or destroyed.",
+                         "Set to false for a quieter experience (effects still apply).")
+                .define("actionBarMessages", true);
         STARTING_HEARTS = BUILDER
                 .comment("Cœurs de départ par partie (défaut: 3)")
                 .defineInRange("startingHearts", 3, 1, 20);

@@ -60,75 +60,95 @@ public class SurvivalGuideItem extends Item {
      * @OnlyIn(CLIENT) garanti par le chemin d'appel (OpenGuidePacket.handle → enqueueWork)
      */
     public static void displayGuideClient(Player player) {
-        // Si le mod est désactivé côté serveur, le guide n'a pas de sens
         if (!com.bodyhealth.client.ClientBodyHealthData.isModEnabled()) {
-            player.sendSystemMessage(Component.literal(
-                "§7[BodyHealth] §cLe système de santé localisée est actuellement désactivé sur ce serveur."));
-            player.sendSystemMessage(Component.literal(
-                "§7Vous utilisez la vie vanilla standard de Minecraft."));
+            say(player, "disabled1");
+            say(player, "disabled2");
             return;
         }
 
-        player.sendSystemMessage(Component.literal(""));
-        player.sendSystemMessage(Component.literal("§6══════ 📖 Guide de Survie ══════"));
+        boolean compact = isCompact();
 
-        // ── Statut actuel ─────────────────────────────────────────────────────
-        player.sendSystemMessage(Component.literal("§e▶ Votre état actuel :"));
+        say(player, "title");
+        say(player, "status");
 
+        boolean anyShown = false;
         for (BodyPart part : BodyPart.values()) {
-            float hp        = com.bodyhealth.client.ClientBodyHealthData.getHealth(part);
-            float max       = com.bodyhealth.client.ClientBodyHealthData.getMaxHealth(part);
-            float absorb    = com.bodyhealth.client.ClientBodyHealthData.getAbsorption(part);
+            float hp     = com.bodyhealth.client.ClientBodyHealthData.getHealth(part);
+            float max    = com.bodyhealth.client.ClientBodyHealthData.getMaxHealth(part);
+            float absorb = com.bodyhealth.client.ClientBodyHealthData.getAbsorption(part);
 
-            String hpBar    = buildHpBar(hp, max);
-            String stateCol = hp <= 0 ? "§8" : hp/max <= 0.34f ? "§c" : hp/max <= 0.65f ? "§e" : "§a";
-            String absorbTag = absorb > 0 ? " §e+" + String.format("%.1f", absorb/2f) + "❤" : "";
+            // Mode compact : seulement les parties blessées ou protégées
+            if (compact && hp >= max && absorb <= 0) continue;
+            anyShown = true;
 
-            player.sendSystemMessage(Component.literal(
-                "  §7" + padRight(getPartName(part), 10) + ": "
-                + hpBar + " " + stateCol
-                + String.format("%.1f", hp) + "§7/§f" + String.format("%.1f", max)
-                + absorbTag));
+            String stateCol  = hp <= 0 ? "§8" : hp/max <= 0.34f ? "§c" : hp/max <= 0.65f ? "§e" : "§a";
+            String absorbTag = absorb > 0 ? " §e+" + String.format("%.1f", absorb / 2f) + "❤" : "";
+
+            player.sendSystemMessage(Component.literal("  ")
+                .append(Component.translatable("bodyhealth.part." + part.getId())
+                        .withStyle(net.minecraft.ChatFormatting.GRAY))
+                .append(Component.literal(": " + buildHpBar(hp, max) + " " + stateCol
+                        + String.format("%.1f", hp) + "§7/§f" + String.format("%.1f", max)
+                        + absorbTag)));
+        }
+        if (!anyShown) say(player, "all_healthy");
+
+        if (compact) {
+            say(player, "compact_hint");
+            say(player, "footer");
+            return;
         }
 
-        // ── Effets critiques par groupe (système façon SrGnis) ─────────────────
-        player.sendSystemMessage(Component.literal(""));
-        player.sendSystemMessage(Component.literal("§e▶ Effets critiques :"));
-        player.sendSystemMessage(Component.literal("  §7Tête/Torse critique  §f→ §cFaiblesse"));
-        player.sendSystemMessage(Component.literal("  §7Bras détruits        §f→ §cFatigue minière"));
-        player.sendSystemMessage(Component.literal("  §7Jambes détruites     §f→ §cLenteur"));
-        player.sendSystemMessage(Component.literal("  §7Tête critique        §f→ §cNausée (vision trouble)"));
-        player.sendSystemMessage(Component.literal("  §7Bras D détruit       §f→ §cImpossible de casser/poser"));
-        player.sendSystemMessage(Component.literal("  §7Bras G détruit       §f→ §cPerd l'item secondaire"));
-        player.sendSystemMessage(Component.literal("  §7Torse à 0 HP         §f→ §4Mort instantanée"));
-        player.sendSystemMessage(Component.literal("  §8Une partie est \"critique\" sous 1/3 de son max (tête/torse)"));
-        player.sendSystemMessage(Component.literal("  §8ou \"détruite\" à 0 HP (bras/jambes)."));
+        blank(player);
+        say(player, "effects.title");
+        say(player, "effects.head_torso");
+        say(player, "effects.arms");
+        say(player, "effects.legs");
+        say(player, "effects.nausea");
+        say(player, "effects.arm_r");
+        say(player, "effects.arm_l");
+        say(player, "effects.torso");
+        say(player, "effects.note1");
+        say(player, "effects.note2");
 
-        // ── Absorption ────────────────────────────────────────────────────────
-        player.sendSystemMessage(Component.literal(""));
-        player.sendSystemMessage(Component.literal("§e▶ Absorption (cœurs jaunes) :"));
-        player.sendSystemMessage(Component.literal("  §7Pomme dorée    §f→ §e+2❤ §7sur la partie la + blessée"));
-        player.sendSystemMessage(Component.literal("  §7Pomme de Notch §f→ §e+4❤ §7sur la partie la + blessée"));
-        player.sendSystemMessage(Component.literal("  §7Totem d'immortalité §f→ §e+2❤ §7sur le torse, vous sauve une fois"));
+        blank(player);
+        say(player, "absorb.title");
+        say(player, "absorb.golden");
+        say(player, "absorb.notch");
+        say(player, "absorb.totem");
 
-        // ── Items de soin ─────────────────────────────────────────────────────
-        player.sendSystemMessage(Component.literal(""));
-        player.sendSystemMessage(Component.literal("§e▶ Items de soin :"));
-        player.sendSystemMessage(Component.literal("  §a🩹 Bandage     §f→ +1.5 ❤ (partie la + blessée)  §8[3s]"));
-        player.sendSystemMessage(Component.literal("  §a🏥 Kit Médical §f→ +3 ❤ toutes parties §8[5s]"));
-        player.sendSystemMessage(Component.literal("  §b💉 Morphine    §f→ Supprime effets 30s §c(overdose ×3 !)"));
+        blank(player);
+        say(player, "items.title");
+        say(player, "items.bandage");
+        say(player, "items.kit");
+        say(player, "items.morphine");
 
-        // ── Craft rapide ──────────────────────────────────────────────────────
-        player.sendSystemMessage(Component.literal(""));
-        player.sendSystemMessage(Component.literal("§e▶ Craft rapide :"));
-        player.sendSystemMessage(Component.literal("  §7Laine + Fil            §f→ §a🩹 Bandage §8(×4)"));
-        player.sendSystemMessage(Component.literal("  §7Bandages + Or + Coffre §f→ §a🏥 Kit Médical"));
-        player.sendSystemMessage(Component.literal("  §7Verre + Blaze + Fer    §f→ §b💉 Seringue §8(×2)"));
+        blank(player);
+        say(player, "craft.title");
+        say(player, "craft.bandage");
+        say(player, "craft.kit");
+        say(player, "craft.morphine");
 
-        player.sendSystemMessage(Component.literal("§6══════════════════════════════"));
+        say(player, "footer");
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
+
+    private static void say(Player player, String key) {
+        player.sendSystemMessage(Component.translatable("bodyhealth.guide." + key));
+    }
+
+    private static void blank(Player player) {
+        player.sendSystemMessage(Component.literal(""));
+    }
+
+    private static boolean isCompact() {
+        try {
+            return com.bodyhealth.config.BodyHealthClientConfig.COMPACT_GUIDE.get();
+        } catch (Exception e) {
+            return false; // config pas encore chargée
+        }
+    }
 
     private static String buildHpBar(float hp, float max) {
         int total  = Math.min((int)(max / 2), 5);
@@ -138,21 +158,6 @@ public class SurvivalGuideItem extends Item {
             sb.append(i < filled ? "§c❤" : "§8❤");
         sb.append("§f]");
         return sb.toString();
-    }
-
-    private static String getPartName(BodyPart part) {
-        return switch (part) {
-            case HEAD      -> "Tête";
-            case TORSO     -> "Torse";
-            case ARM_RIGHT -> "Bras D";
-            case ARM_LEFT  -> "Bras G";
-            case LEG_RIGHT -> "Jambe D";
-            case LEG_LEFT  -> "Jambe G";
-        };
-    }
-
-    private static String padRight(String s, int n) {
-        return String.format("%-" + n + "s", s);
     }
 
     @Override
