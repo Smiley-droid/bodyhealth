@@ -62,8 +62,7 @@ public class TotemHandler {
         totem.shrink(1);
         BodyHealthSyncManager.markDirtyAndFlush(player, data);
 
-        player.displayClientMessage(
-            Component.translatable("bodyhealth.msg.totem_saved"), true);
+        player.sendOverlayMessage(Component.translatable("bodyhealth.msg.totem_saved"));
     }
 
     private ItemStack findTotem(ServerPlayer player) {

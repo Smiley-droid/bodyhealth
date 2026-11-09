@@ -278,8 +278,7 @@ public class DamageEventHandler {
         if (now - msgCooldowns.get(player.getUUID()).getOrDefault(key, 0L) < MSG_CD) return;
         msgCooldowns.get(player.getUUID()).put(key, now);
         // Clé de traduction : le client affiche le message dans SA langue
-        player.displayClientMessage(
-            net.minecraft.network.chat.Component.translatable("bodyhealth.msg." + key), true);
+        player.sendOverlayMessage(net.minecraft.network.chat.Component.translatable("bodyhealth.msg." + key));
     }
 
     private void sendDamageMessage(ServerPlayer player, BodyPart hitPart, BodyHealthData data) {
@@ -313,7 +312,7 @@ public class DamageEventHandler {
     private void dropOffhandItem(ServerPlayer player) {
         ItemStack off = player.getOffhandItem();
         if (!off.isEmpty()) {
-            player.drop(off.copy(), false);
+            player.drop(off.copy(), false, net.minecraft.util.Prediction.SERVER_ONLY);
             player.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND, ItemStack.EMPTY);
         }
     }

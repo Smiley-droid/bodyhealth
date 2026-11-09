@@ -80,6 +80,6 @@ public class BlockInteractionHandler {
         UUID uuid = player.getUUID();
         if (now - lastMsgTime.getOrDefault(uuid, 0L) < MSG_COOLDOWN_MS) return;
         lastMsgTime.put(uuid, now);
-        player.displayClientMessage(Component.translatable("bodyhealth.msg." + key), true);
+        player.sendOverlayMessage(Component.translatable("bodyhealth.msg." + key));
     }
 }

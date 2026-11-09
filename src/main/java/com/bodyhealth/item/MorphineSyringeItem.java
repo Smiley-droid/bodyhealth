@@ -102,8 +102,7 @@ public class MorphineSyringeItem extends Item {
 
         // ── Overdose ──────────────────────────────────────────────────────
         if (useCount >= OVERDOSE_THRESHOLD) {
-            player.displayClientMessage(
-                Component.translatable("bodyhealth.msg.morphine_overdose"), true);
+            player.sendOverlayMessage(Component.translatable("bodyhealth.msg.morphine_overdose"));
 
             // Nausée forcée 10 sec + confusion
             player.addEffect(new MobEffectInstance(MobEffects.NAUSEA,    200, 1, false, false, false));
@@ -141,7 +140,7 @@ public class MorphineSyringeItem extends Item {
                 Component.translatable("bodyhealth.msg.morphine_injected");
         if (useCount == OVERDOSE_THRESHOLD - 1)
             injected.append(Component.translatable("bodyhealth.msg.morphine_warning"));
-        player.displayClientMessage(injected, true);
+        player.sendOverlayMessage(injected);
 
         stack.shrink(1);
         return stack;

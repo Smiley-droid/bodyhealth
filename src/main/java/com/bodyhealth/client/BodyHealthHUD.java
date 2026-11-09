@@ -63,7 +63,7 @@ public class BodyHealthHUD {
     public void onRenderHud(RenderGuiLayerEvent.Post event) {
         if (!event.getName().equals(VanillaGuiLayers.FOOD_LEVEL)) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.options.hideGui) return;
+        if (mc.player == null || mc.gui.hud.isHidden()) return;
         if (mc.player.getAbilities().instabuild) return;          // comme la barre de faim
         if (!ClientBodyHealthData.isModEnabled()) return;         // mod désactivé côté serveur
 

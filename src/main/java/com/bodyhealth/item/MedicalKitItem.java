@@ -35,7 +35,7 @@ public class MedicalKitItem extends Item {
 
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
-        player.displayClientMessage(Component.translatable("bodyhealth.msg.kit_start"), true);
+        player.sendOverlayMessage(Component.translatable("bodyhealth.msg.kit_start"));
         player.startUsingItem(hand);
         return InteractionResult.CONSUME;
     }
@@ -56,9 +56,7 @@ public class MedicalKitItem extends Item {
             }
         }
 
-        player.displayClientMessage(
-            Component.translatable("bodyhealth.msg.kit_healed", String.format("%.1f", totalHeal / 2f)),
-            true);
+        player.sendOverlayMessage(Component.translatable("bodyhealth.msg.kit_healed", String.format("%.1f", totalHeal / 2f)));
 
         PacketDistributor.sendToPlayer(player,
                 new SyncBodyHealthPacket(data.serializeNBT()));

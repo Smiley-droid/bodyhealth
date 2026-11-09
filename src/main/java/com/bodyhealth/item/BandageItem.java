@@ -41,7 +41,7 @@ public class BandageItem extends Item {
             if (data.getHealth(p) < data.getMaxHealth(p)) { needsHeal = true; break; }
 
         if (!needsHeal) {
-            player.displayClientMessage(Component.translatable("bodyhealth.msg.full_health"), true);
+            player.sendOverlayMessage(Component.translatable("bodyhealth.msg.full_health"));
             return InteractionResult.FAIL;
         }
         player.startUsingItem(hand);
@@ -58,9 +58,8 @@ public class BandageItem extends Item {
 
         data.heal(target, HEAL_AMOUNT);
 
-        player.displayClientMessage(
-            Component.translatable("bodyhealth.msg.bandage_healed", String.valueOf(HEAL_AMOUNT / 2f),
-                target.displayName().withStyle(net.minecraft.ChatFormatting.WHITE)), true);
+        player.sendOverlayMessage(Component.translatable("bodyhealth.msg.bandage_healed", String.valueOf(HEAL_AMOUNT / 2f),
+                target.displayName().withStyle(net.minecraft.ChatFormatting.WHITE)));
 
         PacketDistributor.sendToPlayer(player,
                 new SyncBodyHealthPacket(data.serializeNBT()));

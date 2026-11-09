@@ -77,13 +77,10 @@ public class FoodHealHandler {
         // Message action bar avec les vraies valeurs
         if (mainHealed != null) {
             String hpStr = String.format("%.1f", totalHeal / 2f);
-            player.displayClientMessage(
-                Component.translatable("bodyhealth.msg.food_healed", hpStr,
-                    mainHealed.displayName().withStyle(net.minecraft.ChatFormatting.WHITE)),
-                true);
+            player.sendOverlayMessage(Component.translatable("bodyhealth.msg.food_healed", hpStr,
+                    mainHealed.displayName().withStyle(net.minecraft.ChatFormatting.WHITE)));
         } else {
-            player.displayClientMessage(
-                Component.translatable("bodyhealth.msg.full_health"), true);
+            player.sendOverlayMessage(Component.translatable("bodyhealth.msg.full_health"));
         }
 
         PacketDistributor.sendToPlayer(player,
