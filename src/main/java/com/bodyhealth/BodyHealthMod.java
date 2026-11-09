@@ -1,7 +1,5 @@
 package com.bodyhealth;
 
-import com.bodyhealth.client.BodyHealthHUD;
-import com.bodyhealth.client.HideVanillaHealthEvent;
 import com.bodyhealth.command.BodyHealthCommand;
 import com.bodyhealth.common.BodyHealthAttachment;
 import com.bodyhealth.config.BodyHealthConfig;
@@ -15,7 +13,6 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
@@ -53,18 +50,11 @@ public class BodyHealthMod {
         NeoForge.EVENT_BUS.addListener((RegisterCommandsEvent e) ->
                 BodyHealthCommand.register(e.getDispatcher()));
 
-        // Client
-        modEventBus.addListener(this::clientSetup);
-    }
-
-    private void clientSetup(FMLClientSetupEvent event) {
-        // FIX serveur dédié — BodyHealthKeyBindings ne doit être chargée
-        // QUE sur Dist.CLIENT. clientSetup() n'est appelé que côté client,
-        // donc c'est le seul endroit sûr pour référencer cette classe.
-        NeoForge.EVENT_BUS.register(new HideVanillaHealthEvent());
-        NeoForge.EVENT_BUS.register(new BodyHealthHUD());
-        NeoForge.EVENT_BUS.register(new com.bodyhealth.client.BodyHealthKeyBindings());
-        // RegisterKeyMappingsEvent sur le mod bus (IModBusEvent)
-        modEventBus.addListener(com.bodyhealth.client.BodyHealthKeyBindings::registerKeyMappings);
+        // Client — enregistré dès la construction du mod (voir ClientInit).
+        // Le test de distribution garantit que ClientInit n'est jamais chargée
+        // sur un serveur dédié.
+        if (net.neoforged.fml.loading.FMLEnvironment.dist == net.neoforged.api.distmarker.Dist.CLIENT) {
+            com.bodyhealth.client.ClientInit.init(modEventBus);
+        }
     }
 }

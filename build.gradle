@@ -3,7 +3,7 @@ plugins {
     id 'net.neoforged.moddev' version '2.0.141'
 }
 
-version = '12.6.0'
+version = '12.7.0'
 group = 'com.bodyhealth'
 
 base {

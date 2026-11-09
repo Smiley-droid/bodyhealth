@@ -21,5 +21,11 @@
   "item.bodyhealth.morphine_syringe.desc4": "§4☠ 3 zastrzyki w 2 min → Przedawkowanie!",
   "item.bodyhealth.survival_guide.use": "§ePPM §7aby otworzyć przewodnik przetrwania",
   "item.bodyhealth.survival_guide.desc2": "§7i pełny przewodnik przetrwania",
-  "item.bodyhealth.survival_guide.craft": "§8Crafting: Książka + Kość"
+  "item.bodyhealth.survival_guide.craft": "§8Crafting: Książka + Kość",
+  "bodyhealth.part.head": "Głowa",
+  "bodyhealth.part.torso": "Tułów",
+  "bodyhealth.part.arm_right": "Prawa ręka",
+  "bodyhealth.part.arm_left": "Lewa ręka",
+  "bodyhealth.part.leg_right": "Prawa noga",
+  "bodyhealth.part.leg_left": "Lewa noga"
 }

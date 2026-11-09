@@ -21,5 +21,11 @@
   "item.bodyhealth.morphine_syringe.desc4": "§4☠ 2 dakikada 3 enjeksiyon → Aşırı Doz!",
   "item.bodyhealth.survival_guide.use": "§eSağ tık §7hayatta kalma rehberini açmak için",
   "item.bodyhealth.survival_guide.desc2": "§7ve tam hayatta kalma rehberi",
-  "item.bodyhealth.survival_guide.craft": "§8Yap: Kitap + Kemik"
+  "item.bodyhealth.survival_guide.craft": "§8Yap: Kitap + Kemik",
+  "bodyhealth.part.head": "Baş",
+  "bodyhealth.part.torso": "Gövde",
+  "bodyhealth.part.arm_right": "Sağ kol",
+  "bodyhealth.part.arm_left": "Sol kol",
+  "bodyhealth.part.leg_right": "Sağ bacak",
+  "bodyhealth.part.leg_left": "Sol bacak"
 }

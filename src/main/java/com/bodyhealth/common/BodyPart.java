@@ -29,6 +29,11 @@ public enum BodyPart {
     public EquipmentSlot getArmorSlot()        { return armorSlot; }
     public float         getDefaultMaxHealth() { return defaultMaxHealth; }
 
+    /** Nom traduit de la partie du corps (clé bodyhealth.part.<id>). */
+    public net.minecraft.network.chat.MutableComponent displayName() {
+        return net.minecraft.network.chat.Component.translatable("bodyhealth.part." + id);
+    }
+
     public boolean isLeg() { return this == LEG_LEFT || this == LEG_RIGHT; }
     public boolean isArm() { return this == ARM_LEFT || this == ARM_RIGHT; }
 

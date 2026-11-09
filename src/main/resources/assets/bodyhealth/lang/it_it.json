@@ -21,5 +21,11 @@
   "item.bodyhealth.morphine_syringe.desc4": "§4☠ 3 iniezioni in 2 min → Overdose!",
   "item.bodyhealth.survival_guide.use": "§eTasto destro §7per aprire la guida alla sopravvivenza",
   "item.bodyhealth.survival_guide.desc2": "§7e la guida alla sopravvivenza completa",
-  "item.bodyhealth.survival_guide.craft": "§8Ricetta: Libro + Osso"
+  "item.bodyhealth.survival_guide.craft": "§8Ricetta: Libro + Osso",
+  "bodyhealth.part.head": "Testa",
+  "bodyhealth.part.torso": "Busto",
+  "bodyhealth.part.arm_right": "Braccio destro",
+  "bodyhealth.part.arm_left": "Braccio sinistro",
+  "bodyhealth.part.leg_right": "Gamba destra",
+  "bodyhealth.part.leg_left": "Gamba sinistra"
 }

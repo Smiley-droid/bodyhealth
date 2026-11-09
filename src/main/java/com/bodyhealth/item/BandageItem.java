@@ -39,7 +39,7 @@ public class BandageItem extends Item {
             if (data.getHealth(p) < data.getMaxHealth(p)) { needsHeal = true; break; }
 
         if (!needsHeal) {
-            player.displayClientMessage(Component.literal("§7Vous êtes en pleine santé."), true);
+            player.displayClientMessage(Component.translatable("bodyhealth.msg.full_health"), true);
             return InteractionResultHolder.fail(player.getItemInHand(hand));
         }
         player.startUsingItem(hand);
@@ -56,9 +56,9 @@ public class BandageItem extends Item {
 
         data.heal(target, HEAL_AMOUNT);
 
-        String partName = getPartName(target);
         player.displayClientMessage(
-            Component.literal("§a🩹 +" + HEAL_AMOUNT/2f + " ❤ §7→ §f" + partName), true);
+            Component.translatable("bodyhealth.msg.bandage_healed", String.valueOf(HEAL_AMOUNT / 2f),
+                target.displayName().withStyle(net.minecraft.ChatFormatting.WHITE)), true);
 
         PacketDistributor.sendToPlayer(player,
                 new SyncBodyHealthPacket(data.serializeNBT()));
@@ -76,14 +76,6 @@ public class BandageItem extends Item {
             if (pct < worstPct) { worstPct = pct; worst = p; }
         }
         return worstPct >= 1.0f ? null : worst;
-    }
-
-    private String getPartName(BodyPart p) {
-        return switch(p) {
-            case HEAD->"Tête"; case TORSO->"Torse";
-            case ARM_RIGHT->"Bras droit"; case ARM_LEFT->"Bras gauche";
-            case LEG_RIGHT->"Jambe droite"; case LEG_LEFT->"Jambe gauche";
-        };
     }
 
     @Override

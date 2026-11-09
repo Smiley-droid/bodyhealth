@@ -4,8 +4,9 @@ import com.bodyhealth.BodyHealthMod;
 import com.bodyhealth.client.HeartRenderer.HeartType;
 import com.bodyhealth.common.BodyPart;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -14,56 +15,47 @@ import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 
 /**
- * HUD Body Health — coin bas-DROIT, taille réduite (SCALE ×3).
- *
- * FIX 1 — Jambe gauche alignée : les deux jambes sont maintenant placées
- *          au même Y (layout_y=19) car left-leg bbox démarre à y=4 et
- *          right-leg à y=3. On normalise en croppant right-leg depuis y=4.
- *
- * FIX 2 — Menu déplacé en bas-DROIT + SCALE réduit de 4 à 3 (corps 48×96 px).
+ * Overlay Body Health (coin bas-droit). Trois modes (HudSettings.mode) :
+ *   FULL   — silhouette + noms + coeurs
+ *   HEARTS — noms + coeurs
+ *   TEXT   — noms + valeurs de vie
+ * Position, taille (HudSettings.scale, 3 = taille d'origine) et mode sont
+ * réglables dans le menu H et sauvegardés.
  */
 @OnlyIn(Dist.CLIENT)
 public class BodyHealthHUD {
 
-    // SCALE dynamique — modifiable via HudSettingsScreen (touche H)
-    public  static       int HUD_SCALE = 3;
-    private static final int SCALE     = 3; // conservé pour compatibilité interne
-    private static final int CANVAS_W = 16;
-    private static final int CANVAS_H = 32;
-    // drawW()/H calculés dynamiquement depuis HUD_SCALE
-    private static int drawW() { return CANVAS_W * HUD_SCALE; }
-    private static int drawH() { return CANVAS_H * HUD_SCALE; }
+    // Silhouette : canvas 16x32 dessiné à l'échelle fixe 3 (l'overlay entier est ensuite mis à l'échelle)
+    private static final int FIG_SCALE = 3;
+    private static final int FIG_W = 16 * FIG_SCALE;
+    private static final int FIG_H = 32 * FIG_SCALE;
 
-    // Positions dans le canvas 16×32 (en pixels source)
-    // FIX 1 — right-leg : on skip la ligne y=3 (1px fantôme) → même y=19 que left-leg
-    //          On gère ça côté fichier croppé : right-leg-*-cropped.png commence à y=4
     private static final int[] PART_X  = {  4,  4, 12,  0,  8,  4 }; // HEAD TORSO ARM_R ARM_L LEG_R LEG_L
-    private static final int[] PART_Y  = {  0,  8,  8,  8, 19, 19 }; // LEG_R et LEG_L même Y
-    private static final int[] PART_SW = {  8,  8,  4,  4,  4,  4 }; // largeur source croppée
-    private static final int[] PART_SH = {  8, 11, 11, 11, 12, 12 }; // FIX 1 — les deux jambes = 12px
+    private static final int[] PART_Y  = {  0,  8,  8,  8, 19, 19 };
+    private static final int[] PART_SW = {  8,  8,  4,  4,  4,  4 };
+    private static final int[] PART_SH = {  8, 11, 11, 11, 12, 12 };
     private static final String[] PART_FILE = {
-        "head","body","right-hand","left-hand","right-leg","left-leg"
+        "head", "body", "right-hand", "left-hand", "right-leg", "left-leg"
     };
 
     private static final int ROW_H      = 11;
-    private static final int LABEL_W    = 44;
     private static final int HEART_SIZE = 8;
     private static final int HEART_GAP  = 1;
     private static final int PAD        = 5;
     private static final int BODY_GAP   = 7;
-    // BUG 3 FIX — Position configurable via setOffset() + masqué en créatif
-    public static int OFFSET_X = 5;  // offset depuis la droite
-    public static int OFFSET_Y = 5;  // offset depuis le bas
-    private static final int MARGIN_RIGHT = 5;
-    private static final int MARGIN_BOT   = 5;
+    private static final int LABEL_GAP  = 6;
+
+    public static final int MARGIN_RIGHT = 5;
+    public static final int MARGIN_BOT   = 5;
+
+    // Rectangle affiché à l'écran lors du dernier rendu (utilisé par le menu pour le glisser-déposer)
+    public static volatile int  lastX, lastY, lastW, lastH;
+    public static volatile long lastRenderMs;
 
     private static final BodyPart[] ORDER = {
         BodyPart.HEAD, BodyPart.TORSO,
         BodyPart.ARM_RIGHT, BodyPart.ARM_LEFT,
         BodyPart.LEG_RIGHT, BodyPart.LEG_LEFT
-    };
-    private static final String[] LABELS = {
-        "Tête","Torse","Bras D","Bras G","Jambe D","Jambe G"
     };
 
     private static final long[]  lastDamageMs = new long[6];
@@ -74,47 +66,77 @@ public class BodyHealthHUD {
         if (!event.getName().equals(VanillaGuiLayers.FOOD_LEVEL)) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.options.hideGui) return;
-        // Masquer en mode créatif (comme la barre de faim vanilla)
-        if (mc.player.getAbilities().instabuild) return;
-        // Masquer si le mod est désactivé dans la config
-        if (!com.bodyhealth.client.ClientBodyHealthData.isModEnabled()) return;
+        if (mc.player.getAbilities().instabuild) return;          // comme la barre de faim
+        if (!ClientBodyHealthData.isModEnabled()) return;         // mod désactivé côté serveur
 
-        GuiGraphics gui = event.getGuiGraphics();
-        LocalPlayer player = mc.player;
+        GuiGraphics gui  = event.getGuiGraphics();
+        Font        font = mc.font;
         int sw = mc.getWindow().getGuiScaledWidth();
         int sh = mc.getWindow().getGuiScaledHeight();
 
         updateFlash();
-        HeartType hType = HeartRenderer.detectType(player);
+        HeartType hType = HeartRenderer.detectType(mc.player);
 
-        int maxH = 0;
-        for (BodyPart p : ORDER)
-            maxH = Math.max(maxH, (int) Math.ceil(ClientBodyHealthData.getMaxHealth(p) / 2f));
-        int heartsW = maxH * (HEART_SIZE + HEART_GAP);
+        HudSettings.Mode mode = HudSettings.mode;
+        boolean figure = mode == HudSettings.Mode.FULL;
+
+        // ── Dimensions (en unités "logiques", avant mise à l'échelle) ──────────
+        Component[] names = new Component[ORDER.length];
+        int labelW = 0;
+        for (int i = 0; i < ORDER.length; i++) {
+            names[i] = ORDER[i].displayName();
+            labelW = Math.max(labelW, font.width(names[i]));
+        }
+        labelW += LABEL_GAP;
+
+        int contentW = 0;
+        if (mode == HudSettings.Mode.TEXT) {
+            for (BodyPart p : ORDER)
+                contentW = Math.max(contentW, font.width(mainText(p) + absorbText(p)));
+        } else {
+            int maxHearts = 0;
+            for (BodyPart p : ORDER)
+                maxHearts = Math.max(maxHearts, (int) Math.ceil(ClientBodyHealthData.getMaxHealth(p) / 2f));
+            contentW = maxHearts * (HEART_SIZE + HEART_GAP) + 12;
+        }
 
         int listH  = ORDER.length * ROW_H;
-        int panelH = Math.max(drawH(), listH) + PAD * 2;
-        int panelW = PAD + drawW() + BODY_GAP + LABEL_W + heartsW + 12 + PAD;
+        int panelH = Math.max(figure ? FIG_H : 0, listH) + PAD * 2;
+        int panelW = PAD + (figure ? FIG_W + BODY_GAP : 0) + labelW + contentW + PAD;
 
-        // FIX 2 — coin bas-DROIT
-        int px = sw - panelW - MARGIN_RIGHT - OFFSET_X;
-        int py = sh - MARGIN_BOT - panelH - OFFSET_Y;
+        // ── Position à l'écran ─────────────────────────────────────────────────
+        float k = HudSettings.scale / 3f;
+        int shownW = Math.round(panelW * k);
+        int shownH = Math.round(panelH * k);
+        int px = sw - shownW - MARGIN_RIGHT - HudSettings.offsetX;
+        int py = sh - shownH - MARGIN_BOT   - HudSettings.offsetY;
+        px = Math.max(0, Math.min(px, sw - shownW));
+        py = Math.max(0, Math.min(py, sh - shownH));
 
-        gui.fill(px, py, px + panelW, py + panelH, 0xAA1A2030);
-        // Bordure fine
-        gui.fill(px,            py,            px + panelW, py + 1,      0xFF505870);
-        gui.fill(px,            py + panelH-1, px + panelW, py + panelH, 0xFF252838);
-        gui.fill(px,            py,            px + 1,      py + panelH, 0xFF505870);
-        gui.fill(px + panelW-1, py,            px + panelW, py + panelH, 0xFF252838);
+        lastX = px; lastY = py; lastW = shownW; lastH = shownH;
+        lastRenderMs = System.currentTimeMillis();
 
-        int bodyDrawX = px + PAD;
-        int bodyDrawY = py + (panelH - drawH()) / 2;
-        renderBodyComposite(gui, bodyDrawX, bodyDrawY);
+        gui.pose().pushPose();
+        gui.pose().translate((float) px, (float) py, 0f);
+        gui.pose().scale(k, k, 1f);
 
-        int listX = bodyDrawX + drawW() + BODY_GAP;
-        int listY = py + (panelH - listH) / 2;
+        // Fond + bordure
+        gui.fill(0, 0, panelW, panelH, 0xAA1A2030);
+        gui.fill(0,          0,          panelW, 1,      0xFF505870);
+        gui.fill(0,          panelH - 1, panelW, panelH, 0xFF252838);
+        gui.fill(0,          0,          1,      panelH, 0xFF505870);
+        gui.fill(panelW - 1, 0,          panelW, panelH, 0xFF252838);
+
+        int listX = PAD;
+        if (figure) {
+            renderBodyComposite(gui, PAD, (panelH - FIG_H) / 2);
+            listX = PAD + FIG_W + BODY_GAP;
+        }
+        int listY = (panelH - listH) / 2;
         for (int i = 0; i < ORDER.length; i++)
-            renderRow(gui, mc, ORDER[i], LABELS[i], listX, listY + i * ROW_H, hType, i);
+            renderRow(gui, font, ORDER[i], names[i], listX, listY + i * ROW_H, labelW, hType, i, mode);
+
+        gui.pose().popPose();
     }
 
     private void renderBodyComposite(GuiGraphics gui, int ox, int oy) {
@@ -128,20 +150,21 @@ public class BodyHealthHUD {
             ResourceLocation tex = ResourceLocation.fromNamespaceAndPath(BodyHealthMod.MOD_ID,
                 "textures/gui/body_parts/" + PART_FILE[i] + "-" + color + "-cropped.png");
 
-            int dx = ox + PART_X[i] * HUD_SCALE;
-            int dy = oy + PART_Y[i] * HUD_SCALE;
-            int dw = PART_SW[i] * HUD_SCALE;
-            int dh = PART_SH[i] * HUD_SCALE;
+            int dx = ox + PART_X[i] * FIG_SCALE;
+            int dy = oy + PART_Y[i] * FIG_SCALE;
+            int dw = PART_SW[i] * FIG_SCALE;
+            int dh = PART_SH[i] * FIG_SCALE;
             gui.blit(tex, dx, dy, dw, dh, 0, 0, PART_SW[i], PART_SH[i], PART_SW[i], PART_SH[i]);
         }
     }
 
-    private void renderRow(GuiGraphics gui, Minecraft mc, BodyPart part,
-                            String label, int x, int y, HeartType hType, int index) {
+    private void renderRow(GuiGraphics gui, Font font, BodyPart part, Component label,
+                           int x, int y, int labelW, HeartType hType, int index,
+                           HudSettings.Mode mode) {
         float hp    = ClientBodyHealthData.getHealth(part);
         float maxHp = ClientBodyHealthData.getMaxHealth(part);
-        boolean dead = ClientBodyHealthData.isDead(part);
-        boolean crit = ClientBodyHealthData.isCritical(part);
+        boolean dead  = ClientBodyHealthData.isDead(part);
+        boolean crit  = ClientBodyHealthData.isCritical(part);
         boolean flash = (System.currentTimeMillis() - lastDamageMs[index]) < 400;
         boolean blink = crit && (System.currentTimeMillis() / 400) % 2 == 0;
 
@@ -151,12 +174,39 @@ public class BodyHealthHUD {
         else if (crit)  labelColor = blink ? 0xFFFF4400 : 0xFFFF8800;
         else            labelColor = 0xFFDDDDDD;
 
-        gui.drawString(mc.font, label, x, y + 1, labelColor, false);
+        gui.drawString(font, label, x, y + 1, labelColor, false);
 
-        int heartsX = x + LABEL_W;
-        float absorption = ClientBodyHealthData.getAbsorption(part);
-        HeartRenderer.renderHearts(gui, heartsX, y,
-                dead ? 0 : hp, maxHp, absorption, crit, hType, Integer.MAX_VALUE);
+        int cx = x + labelW;
+        if (mode == HudSettings.Mode.TEXT) {
+            float pct = maxHp > 0 ? (dead ? 0f : hp) / maxHp : 0f;
+            int valueColor;
+            if (dead)               valueColor = 0xFF555555;
+            else if (flash)         valueColor = 0xFFFF3333;
+            else if (crit)          valueColor = blink ? 0xFFFF4400 : 0xFFFF8800;
+            else if (pct <= 0.34f)  valueColor = 0xFFFF5555;
+            else if (pct <= 0.65f)  valueColor = 0xFFFFAA00;
+            else                    valueColor = 0xFF55FF55;
+
+            String main = mainText(part);
+            gui.drawString(font, main, cx, y + 1, valueColor, false);
+            String abs = absorbText(part);
+            if (!abs.isEmpty())
+                gui.drawString(font, abs, cx + font.width(main), y + 1, 0xFFFFD84A, false);
+        } else {
+            HeartRenderer.renderHearts(gui, cx, y, dead ? 0 : hp, maxHp,
+                    ClientBodyHealthData.getAbsorption(part), crit, hType, Integer.MAX_VALUE);
+        }
+    }
+
+    private static String mainText(BodyPart p) {
+        float hp  = ClientBodyHealthData.isDead(p) ? 0f : ClientBodyHealthData.getHealth(p);
+        float max = ClientBodyHealthData.getMaxHealth(p);
+        return String.format("%.1f/%.1f", hp, max);
+    }
+
+    private static String absorbText(BodyPart p) {
+        float a = ClientBodyHealthData.getAbsorption(p);
+        return a > 0 ? " +" + String.format("%.1f", a) : "";
     }
 
     private String colorFor(float hp, float maxHp) {

@@ -21,5 +21,11 @@
   "item.bodyhealth.morphine_syringe.desc4": "§4☠ 3 injekce za 2 min → Předávkování!",
   "item.bodyhealth.survival_guide.use": "§ePravé tlačítko §7pro otevření průvodce přežitím",
   "item.bodyhealth.survival_guide.desc2": "§7a kompletní průvodce přežitím",
-  "item.bodyhealth.survival_guide.craft": "§8Craft: Kniha + Kost"
+  "item.bodyhealth.survival_guide.craft": "§8Craft: Kniha + Kost",
+  "bodyhealth.part.head": "Hlava",
+  "bodyhealth.part.torso": "Torzo",
+  "bodyhealth.part.arm_right": "Pravá paže",
+  "bodyhealth.part.arm_left": "Levá paže",
+  "bodyhealth.part.leg_right": "Pravá noha",
+  "bodyhealth.part.leg_left": "Levá noha"
 }

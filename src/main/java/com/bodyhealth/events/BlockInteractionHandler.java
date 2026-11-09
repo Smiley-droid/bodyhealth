@@ -38,10 +38,10 @@ public class BlockInteractionHandler {
 
         if (data.isDead(BodyPart.ARM_RIGHT)) {
             event.setCanceled(true);
-            sendMessage(player, "§c☠ Bras droit détruit — impossible de casser des blocs.");
+            sendMessage(player, "arm_r_break");
         } else if (data.isCritical(BodyPart.ARM_RIGHT)) {
             // Avertissement seulement, pas de blocage
-            sendMessage(player, "§e⚠ Bras droit critique — agissez rapidement !");
+            sendMessage(player, "arm_r_warn");
         }
     }
 
@@ -56,7 +56,7 @@ public class BlockInteractionHandler {
 
         if (data.isDead(BodyPart.ARM_RIGHT)) {
             event.setCanceled(true);
-            sendMessage(player, "§c☠ Bras droit détruit — impossible de poser des blocs.");
+            sendMessage(player, "arm_r_place");
         }
     }
 
@@ -71,15 +71,15 @@ public class BlockInteractionHandler {
 
         if (data.isDead(BodyPart.ARM_RIGHT)) {
             event.setCanceled(true);
-            sendMessage(player, "§c☠ Bras droit détruit — impossible d'utiliser cet objet.");
+            sendMessage(player, "arm_r_use");
         }
     }
 
-    private void sendMessage(ServerPlayer player, String msg) {
+    private void sendMessage(ServerPlayer player, String key) {
         long now = System.currentTimeMillis();
         UUID uuid = player.getUUID();
         if (now - lastMsgTime.getOrDefault(uuid, 0L) < MSG_COOLDOWN_MS) return;
         lastMsgTime.put(uuid, now);
-        player.displayClientMessage(Component.literal(msg), true);
+        player.displayClientMessage(Component.translatable("bodyhealth.msg." + key), true);
     }
 }

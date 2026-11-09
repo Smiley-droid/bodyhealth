@@ -7,95 +7,171 @@ import net.minecraft.network.chat.Component;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
+/**
+ * Menu de réglages de l'overlay (touche H par défaut).
+ * - mode d'affichage (silhouette / noms + coeurs / noms + valeurs)
+ * - position : flèches, flèches du clavier, ou glisser l'overlay à la souris
+ * - taille
+ * Les réglages sont sauvegardés à la fermeture (config/bodyhealth-hud.json).
+ * Le panneau est à gauche pour laisser voir l'aperçu en direct en bas à droite.
+ */
 @OnlyIn(Dist.CLIENT)
 public class HudSettingsScreen extends Screen {
 
     private static final int STEP = 5;
     private static final int BW   = 24;
     private static final int BH   = 20;
+    private static final int PW   = 200;
+    private static final int PH   = 252;
+
+    private Button  modeButton;
+    private boolean dragging;
+    private double  grabX, grabY;
 
     public HudSettingsScreen() {
-        super(Component.literal("Body Health - Reglages HUD"));
+        super(Component.translatable("bodyhealth.hud.title"));
     }
+
+    private int panelX() { return 10; }
+    private int panelY() { return Math.max(6, (this.height - PH) / 2); }
 
     @Override
     protected void init() {
-        int cx = this.width  / 2;
-        int cy = this.height / 2;
+        int x  = panelX();
+        int y  = panelY();
+        int cx = x + PW / 2;
 
-        int ax = cx, ay = cy - 30;
-        btn("^",  ax - BW/2,    ay - BH - 2, b -> adjY( STEP));
-        btn("v",  ax - BW/2,    ay + 2,       b -> adjY(-STEP));
-        btn("<",  ax - BW - 28, ay - BH/2,   b -> adjX( STEP));
-        btn(">",  ax + 28,      ay - BH/2,   b -> adjX(-STEP));
+        // Mode d'affichage
+        modeButton = addRenderableWidget(Button.builder(modeLabel(), b -> {
+            HudSettings.mode = HudSettings.mode.next();
+            b.setMessage(modeLabel());
+        }).bounds(x + 10, y + 42, PW - 20, 20).build());
 
-        int sy = cy + 55;
-        btn("-", cx - BW - 4, sy - BH/2, b -> { BodyHealthHUD.HUD_SCALE = Math.max(1, BodyHealthHUD.HUD_SCALE - 1); });
-        btn("+", cx + 4,      sy - BH/2, b -> { BodyHealthHUD.HUD_SCALE = Math.min(6, BodyHealthHUD.HUD_SCALE + 1); });
+        // Croix de position
+        int top = y + 90;
+        btn("^", cx - BW / 2,        top,                b -> adjY( STEP));
+        btn("<", cx - BW - BW / 2 - 2, top + BH + 2,     b -> adjX( STEP));
+        btn(">", cx + BW / 2 + 2,    top + BH + 2,       b -> adjX(-STEP));
+        btn("v", cx - BW / 2,        top + 2 * (BH + 2), b -> adjY(-STEP));
 
-        addRenderableWidget(Button.builder(Component.literal("Reinitialiser"),
-            b -> { BodyHealthHUD.OFFSET_X = 5; BodyHealthHUD.OFFSET_Y = 5; BodyHealthHUD.HUD_SCALE = 3; })
-            .bounds(cx - 105, cy + 90, 100, 20).build());
+        // Taille
+        int sy = y + 178;
+        btn("-", cx - BW - 34, sy, b -> HudSettings.scale = Math.max(HudSettings.MIN_SCALE, HudSettings.scale - 1));
+        btn("+", cx + 34,      sy, b -> HudSettings.scale = Math.min(HudSettings.MAX_SCALE, HudSettings.scale + 1));
 
-        addRenderableWidget(Button.builder(Component.literal("Fermer"), b -> onClose())
-            .bounds(cx + 5, cy + 90, 100, 20).build());
+        // Réinitialiser / Fermer
+        addRenderableWidget(Button.builder(Component.translatable("bodyhealth.hud.reset"), b -> {
+            HudSettings.reset();
+            modeButton.setMessage(modeLabel());
+        }).bounds(x + 8, y + 206, 90, 20).build());
+        addRenderableWidget(Button.builder(Component.translatable("bodyhealth.hud.close"), b -> onClose())
+            .bounds(x + PW - 98, y + 206, 90, 20).build());
     }
 
-    private void btn(String lbl, int x, int y, Button.OnPress a) {
-        addRenderableWidget(Button.builder(Component.literal(lbl), a).bounds(x, y, BW, BH).build());
+    private Component modeLabel() {
+        return Component.translatable("bodyhealth.hud.display")
+                .append(": ")
+                .append(Component.translatable("bodyhealth.hud.mode." + HudSettings.mode.key));
     }
 
-    private void adjX(int d) { BodyHealthHUD.OFFSET_X = Math.max(0, BodyHealthHUD.OFFSET_X + d); }
-    private void adjY(int d) { BodyHealthHUD.OFFSET_Y = Math.max(0, BodyHealthHUD.OFFSET_Y + d); }
+    private void btn(String label, int x, int y, Button.OnPress action) {
+        addRenderableWidget(Button.builder(Component.literal(label), action).bounds(x, y, BW, BH).build());
+    }
+
+    private void adjX(int d) { HudSettings.offsetX = Math.max(0, HudSettings.offsetX + d); }
+    private void adjY(int d) { HudSettings.offsetY = Math.max(0, HudSettings.offsetY + d); }
+
+    /** Pas de flou ni d'assombrissement : l'aperçu de l'overlay reste net. */
+    @Override
+    public void renderBackground(GuiGraphics g, int mx, int my, float dt) { }
 
     @Override
     public void render(GuiGraphics g, int mx, int my, float dt) {
-        this.renderBackground(g, mx, my, dt);
+        int x  = panelX();
+        int y  = panelY();
+        int cx = x + PW / 2;
 
-        int cx = this.width / 2, cy = this.height / 2;
-        int pw = 260, ph = 240;
-        int px = cx - pw/2, py = cy - ph/2;
+        // Panneau
+        g.fill(x,          y,          x + PW,     y + PH,     0xDD0D0D18);
+        g.fill(x,          y,          x + PW,     y + 1,      0xFF5566AA);
+        g.fill(x,          y + PH - 1, x + PW,     y + PH,     0xFF223366);
+        g.fill(x,          y,          x + 1,      y + PH,     0xFF5566AA);
+        g.fill(x + PW - 1, y,          x + PW,     y + PH,     0xFF223366);
 
-        // Fond panneau
-        g.fill(px,      py,      px+pw,   py+ph,   0xDD0D0D18);
-        g.fill(px,      py,      px+pw,   py+1,    0xFF5566AA);
-        g.fill(px,      py+ph-1, px+pw,   py+ph,   0xFF223366);
-        g.fill(px,      py,      px+1,    py+ph,   0xFF5566AA);
-        g.fill(px+pw-1, py,      px+pw,   py+ph,   0xFF223366);
+        g.drawCenteredString(font, this.title, cx, y + 10, 0xFFFFFFFF);
 
-        // Titre
-        g.drawCenteredString(font, "Body Health - Reglages HUD", cx, py + 10, 0xFFFFFFFF);
+        boolean visible = System.currentTimeMillis() - BodyHealthHUD.lastRenderMs < 300;
+        if (!visible)
+            g.drawCenteredString(font, Component.translatable("bodyhealth.hud.not_visible"), cx, y + 24, 0xFFFF8888);
 
-        // Position
-        int ay = cy - 30;
-        g.drawCenteredString(font, "Position",          cx, ay - BH - 20, 0xFFAAAAAA);
-        g.drawCenteredString(font, "X: " + BodyHealthHUD.OFFSET_X + "  Y: " + BodyHealthHUD.OFFSET_Y,
-                cx, ay + BH + 6, 0xFFDDDDDD);
+        g.drawCenteredString(font, Component.translatable("bodyhealth.hud.display"),  cx, y + 32, 0xFFAAAAAA);
+        g.drawCenteredString(font, Component.translatable("bodyhealth.hud.position"), cx, y + 76, 0xFFAAAAAA);
+        g.drawCenteredString(font, "X: " + HudSettings.offsetX + "   Y: " + HudSettings.offsetY,
+                cx, y + 160, 0xFFDDDDDD);
 
-        // Taille
-        int sy = cy + 55;
-        g.drawCenteredString(font, "Taille",             cx, sy - BH - 20, 0xFFAAAAAA);
-        g.drawCenteredString(font, "Scale: " + BodyHealthHUD.HUD_SCALE + " (1-6)",
-                cx, sy + 6, 0xFFDDDDDD);
+        g.drawCenteredString(font, Component.translatable("bodyhealth.hud.size"), cx, y + 168 - 2 + 0, 0xFFAAAAAA);
+        g.drawCenteredString(font, String.valueOf(HudSettings.scale) + " / " + HudSettings.MAX_SCALE,
+                cx, y + 178 + 6, 0xFFDDDDDD);
 
-        // Point rouge position HUD
-        int dotX = Math.max(8, Math.min(this.width  - 8, this.width  - 5 - BodyHealthHUD.OFFSET_X));
-        int dotY = Math.max(8, Math.min(this.height - 8, this.height - 5 - BodyHealthHUD.OFFSET_Y));
-        g.fill(dotX - 4, dotY - 4, dotX + 4, dotY + 4, 0xFFFF3333);
-        g.drawString(font, "< HUD", dotX - 36, dotY - 4, 0xFFFF8888, true);
+        g.drawCenteredString(font, Component.translatable("bodyhealth.hud.drag_hint"),
+                cx, y + PH - 16, 0xFF888888);
 
         super.render(g, mx, my, dt);
+    }
+
+    // ── Glisser-déposer de l'overlay ──────────────────────────────────────────
+
+    private boolean overHud(double mx, double my) {
+        return System.currentTimeMillis() - BodyHealthHUD.lastRenderMs < 300
+            && mx >= BodyHealthHUD.lastX && mx <= BodyHealthHUD.lastX + BodyHealthHUD.lastW
+            && my >= BodyHealthHUD.lastY && my <= BodyHealthHUD.lastY + BodyHealthHUD.lastH;
+    }
+
+    @Override
+    public boolean mouseClicked(double mx, double my, int button) {
+        if (super.mouseClicked(mx, my, button)) return true;
+        if (button == 0 && overHud(mx, my)) {
+            dragging = true;
+            grabX = mx - BodyHealthHUD.lastX;
+            grabY = my - BodyHealthHUD.lastY;
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean mouseDragged(double mx, double my, int button, double dx, double dy) {
+        if (dragging && button == 0) {
+            int left = (int) Math.round(mx - grabX);
+            int top  = (int) Math.round(my - grabY);
+            HudSettings.offsetX = Math.max(0, this.width  - BodyHealthHUD.MARGIN_RIGHT - BodyHealthHUD.lastW - left);
+            HudSettings.offsetY = Math.max(0, this.height - BodyHealthHUD.MARGIN_BOT   - BodyHealthHUD.lastH - top);
+            return true;
+        }
+        return super.mouseDragged(mx, my, button, dx, dy);
+    }
+
+    @Override
+    public boolean mouseReleased(double mx, double my, int button) {
+        if (button == 0) dragging = false;
+        return super.mouseReleased(mx, my, button);
     }
 
     @Override
     public boolean keyPressed(int key, int scan, int mods) {
         switch (key) {
-            case 265 -> { adjY( STEP); return true; }
-            case 264 -> { adjY(-STEP); return true; }
-            case 263 -> { adjX( STEP); return true; }
-            case 262 -> { adjX(-STEP); return true; }
+            case 265 -> { adjY( STEP); return true; } // haut
+            case 264 -> { adjY(-STEP); return true; } // bas
+            case 263 -> { adjX( STEP); return true; } // gauche
+            case 262 -> { adjX(-STEP); return true; } // droite
         }
         return super.keyPressed(key, scan, mods);
+    }
+
+    @Override
+    public void removed() {
+        HudSettings.save();
+        super.removed();
     }
 
     @Override

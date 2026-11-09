@@ -4,7 +4,7 @@ license = "MIT"
 
 [[mods]]
     modId = "bodyhealth"
-    version = "12.6.0"
+    version = "12.7.0"
     displayName = "Body Health System"
 logoFile = "assets/bodyhealth/icon.png"
     description = '''

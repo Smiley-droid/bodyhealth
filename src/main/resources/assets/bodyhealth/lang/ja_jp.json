@@ -21,5 +21,11 @@
   "item.bodyhealth.morphine_syringe.desc4": "§4☠ 2分で3回注射 → 過剰摂取！",
   "item.bodyhealth.survival_guide.use": "§e右クリック §7でサバイバルガイドを開く",
   "item.bodyhealth.survival_guide.desc2": "§7と完全なサバイバルガイド",
-  "item.bodyhealth.survival_guide.craft": "§8クラフト：本 + 骨"
+  "item.bodyhealth.survival_guide.craft": "§8クラフト：本 + 骨",
+  "bodyhealth.part.head": "頭",
+  "bodyhealth.part.torso": "胴体",
+  "bodyhealth.part.arm_right": "右腕",
+  "bodyhealth.part.arm_left": "左腕",
+  "bodyhealth.part.leg_right": "右脚",
+  "bodyhealth.part.leg_left": "左脚"
 }

@@ -23,14 +23,14 @@ public class BodyHealthKeyBindings {
 
     /**
      * Enregistrement de la touche — sur le MOD event bus via modEventBus.addListener()
-     * appelé depuis BodyHealthMod.clientSetup()
+     * appelé depuis ClientInit.init() (constructeur du mod)
      */
     public static void registerKeyMappings(RegisterKeyMappingsEvent event) {
         event.register(OPEN_HUD_SETTINGS);
     }
 
     /**
-     * Handler tick — sur NeoForge.EVENT_BUS via instance enregistrée dans clientSetup()
+     * Handler tick — sur NeoForge.EVENT_BUS via instance enregistrée dans ClientInit.init()
      */
     @SubscribeEvent
     public void onClientTick(PlayerTickEvent.Post event) {

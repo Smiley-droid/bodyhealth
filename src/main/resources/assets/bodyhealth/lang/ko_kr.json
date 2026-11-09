@@ -21,5 +21,11 @@
   "item.bodyhealth.morphine_syringe.desc4": "§4☠ 2분 내 3회 주사 → 과다복용!",
   "item.bodyhealth.survival_guide.use": "§e우클릭 §7으로 생존 가이드 열기",
   "item.bodyhealth.survival_guide.desc2": "§7및 완전한 생존 가이드",
-  "item.bodyhealth.survival_guide.craft": "§8제작: 책 + 뼈"
+  "item.bodyhealth.survival_guide.craft": "§8제작: 책 + 뼈",
+  "bodyhealth.part.head": "머리",
+  "bodyhealth.part.torso": "몸통",
+  "bodyhealth.part.arm_right": "오른팔",
+  "bodyhealth.part.arm_left": "왼팔",
+  "bodyhealth.part.leg_right": "오른쪽 다리",
+  "bodyhealth.part.leg_left": "왼쪽 다리"
 }

@@ -1,6 +1,6 @@
 # 🫀 Body Health System
 
-**NeoForge 1.21.1 · v12.6.0**
+**NeoForge 1.21.1 · v12.7.0**
 
 Replaces Minecraft's single health bar with a localized injury system: every body part has its own HP, its own critical state and its own consequences.
 
@@ -17,7 +17,7 @@ Replaces Minecraft's single health bar with a localized injury system: every bod
   - Left arm destroyed → drops the offhand item
   - Torso at 0 HP → death
 - **Absorption** — golden apples and the Totem of Undying give yellow hearts on a specific body part
-- **Pixel-art HUD** — movable and resizable in game (default key `H`, rebindable in Controls)
+- **Configurable HUD** — three display modes (figure + hearts, names + hearts, names + health numbers); move it by dragging, resize it, all from the in-game menu (default key `H`, rebindable in Controls). Settings are saved in `config/bodyhealth-hud.json`
 - **Persistent data** — stored in the player NBT *and* mirrored to `world/bodyhealth/<UUID>.json`
 - **Full off switch** — `enabled = false` hands everything back to vanilla (health bar, food, potions, golden apples, totem)
 - **Translations** — English and French are complete; item tooltips are translated in 19 languages (missing texts fall back to English)

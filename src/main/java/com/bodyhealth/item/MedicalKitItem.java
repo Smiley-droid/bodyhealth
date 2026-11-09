@@ -31,7 +31,7 @@ public class MedicalKitItem extends Item {
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
-        player.displayClientMessage(Component.literal("§e🏥 Traitement en cours..."), true);
+        player.displayClientMessage(Component.translatable("bodyhealth.msg.kit_start"), true);
         player.startUsingItem(hand);
         return InteractionResultHolder.consume(player.getItemInHand(hand));
     }
@@ -53,7 +53,7 @@ public class MedicalKitItem extends Item {
         }
 
         player.displayClientMessage(
-            Component.literal("§a🏥 +" + String.format("%.1f", totalHeal / 2f) + " ❤ total"),
+            Component.translatable("bodyhealth.msg.kit_healed", String.format("%.1f", totalHeal / 2f)),
             true);
 
         PacketDistributor.sendToPlayer(player,

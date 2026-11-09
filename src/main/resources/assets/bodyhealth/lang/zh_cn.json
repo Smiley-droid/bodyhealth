@@ -21,5 +21,11 @@
   "item.bodyhealth.morphine_syringe.desc4": "§4☠ 2分钟内注射3次 → 过量!",
   "item.bodyhealth.survival_guide.use": "§e右键 §7打开生存指南",
   "item.bodyhealth.survival_guide.desc2": "§7和完整的生存指南",
-  "item.bodyhealth.survival_guide.craft": "§8合成：书 + 骨头"
+  "item.bodyhealth.survival_guide.craft": "§8合成：书 + 骨头",
+  "bodyhealth.part.head": "头部",
+  "bodyhealth.part.torso": "躯干",
+  "bodyhealth.part.arm_right": "右臂",
+  "bodyhealth.part.arm_left": "左臂",
+  "bodyhealth.part.leg_right": "右腿",
+  "bodyhealth.part.leg_left": "左腿"
 }

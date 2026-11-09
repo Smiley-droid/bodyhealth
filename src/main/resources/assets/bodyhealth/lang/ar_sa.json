@@ -21,5 +21,11 @@
   "item.bodyhealth.morphine_syringe.desc4": "§4☠ 3 حقن في دقيقتين → جرعة زائدة!",
   "item.bodyhealth.survival_guide.use": "§eانقر بالزر الأيمن §7لفتح دليل البقاء",
   "item.bodyhealth.survival_guide.desc2": "§7ودليل البقاء الكامل",
-  "item.bodyhealth.survival_guide.craft": "§8صنع: كتاب + عظمة"
+  "item.bodyhealth.survival_guide.craft": "§8صنع: كتاب + عظمة",
+  "bodyhealth.part.head": "الرأس",
+  "bodyhealth.part.torso": "الجذع",
+  "bodyhealth.part.arm_right": "الذراع اليمنى",
+  "bodyhealth.part.arm_left": "الذراع اليسرى",
+  "bodyhealth.part.leg_right": "الساق اليمنى",
+  "bodyhealth.part.leg_left": "الساق اليسرى"
 }

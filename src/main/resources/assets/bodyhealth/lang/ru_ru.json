@@ -21,5 +21,11 @@
   "item.bodyhealth.morphine_syringe.desc4": "§4☠ 3 инъекции за 2 мин → Передозировка!",
   "item.bodyhealth.survival_guide.use": "§eПКМ §7чтобы открыть руководство по выживанию",
   "item.bodyhealth.survival_guide.desc2": "§7и полное руководство по выживанию",
-  "item.bodyhealth.survival_guide.craft": "§8Крафт: Книга + Кость"
+  "item.bodyhealth.survival_guide.craft": "§8Крафт: Книга + Кость",
+  "bodyhealth.part.head": "Голова",
+  "bodyhealth.part.torso": "Туловище",
+  "bodyhealth.part.arm_right": "Правая рука",
+  "bodyhealth.part.arm_left": "Левая рука",
+  "bodyhealth.part.leg_right": "Правая нога",
+  "bodyhealth.part.leg_left": "Левая нога"
 }

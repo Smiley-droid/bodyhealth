@@ -101,7 +101,7 @@ public class MorphineSyringeItem extends Item {
         // ── Overdose ──────────────────────────────────────────────────────
         if (useCount >= OVERDOSE_THRESHOLD) {
             player.displayClientMessage(
-                Component.literal("§4💉 OVERDOSE ! §cTrop de morphine..."), true);
+                Component.translatable("bodyhealth.msg.morphine_overdose"), true);
 
             // Nausée forcée 10 sec + confusion
             player.addEffect(new MobEffectInstance(MobEffects.CONFUSION,    200, 1, false, false, false));
@@ -135,12 +135,11 @@ public class MorphineSyringeItem extends Item {
         persistentData.putLong(NBT_MORPHINE_ACTIVE, blockedUntil);
 
         // 4. Message selon le nb d'utilisations
-        String warning = useCount == OVERDOSE_THRESHOLD - 1
-                ? " §c⚠ Dernière dose sûre !"
-                : "";
-        player.displayClientMessage(
-            Component.literal("§b💉 Morphine injectée. §7Effets supprimés 30s." + warning),
-            true);
+        net.minecraft.network.chat.MutableComponent injected =
+                Component.translatable("bodyhealth.msg.morphine_injected");
+        if (useCount == OVERDOSE_THRESHOLD - 1)
+            injected.append(Component.translatable("bodyhealth.msg.morphine_warning"));
+        player.displayClientMessage(injected, true);
 
         stack.shrink(1);
         return stack;

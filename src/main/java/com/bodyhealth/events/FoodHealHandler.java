@@ -78,11 +78,12 @@ public class FoodHealHandler {
         if (mainHealed != null) {
             String hpStr = String.format("%.1f", totalHeal / 2f);
             player.displayClientMessage(
-                Component.literal("§a❤ +" + hpStr + " ❤ §7→ §f" + getPartName(mainHealed)),
+                Component.translatable("bodyhealth.msg.food_healed", hpStr,
+                    mainHealed.displayName().withStyle(net.minecraft.ChatFormatting.WHITE)),
                 true);
         } else {
             player.displayClientMessage(
-                Component.literal("§7Vous êtes en pleine santé."), true);
+                Component.translatable("bodyhealth.msg.full_health"), true);
         }
 
         PacketDistributor.sendToPlayer(player,
@@ -131,16 +132,5 @@ public class FoodHealHandler {
             if (pct < worstPct) { worstPct = pct; worst = part; }
         }
         return worstPct >= 1.0f ? null : worst;
-    }
-
-    private String getPartName(BodyPart part) {
-        return switch (part) {
-            case HEAD      -> "Tête";
-            case TORSO     -> "Torse";
-            case ARM_RIGHT -> "Bras droit";
-            case ARM_LEFT  -> "Bras gauche";
-            case LEG_RIGHT -> "Jambe droite";
-            case LEG_LEFT  -> "Jambe gauche";
-        };
     }
 }
