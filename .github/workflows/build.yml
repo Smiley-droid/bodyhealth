@@ -1,0 +1,40 @@
+name: Build
+on:
+  push:
+    branches: [ "neoforge-26.x" ]
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Existing release tag to attach the jar to (optional)"
+        required: false
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { mc: "26.1", neo: "26.1.0.19-beta" }
+          - { mc: "26.2", neo: "26.2.0.93" }
+          - { mc: "26.3", neo: "26.3.0.101" }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+      - name: Build
+        run: |
+          chmod +x gradlew
+          ./gradlew build --no-daemon --stacktrace -Pminecraft_version=${{ matrix.mc }} -Pminecraft_version_range='[${{ matrix.mc }}]' -Pneo_version=${{ matrix.neo }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bodyhealth-mc${{ matrix.mc }}
+          path: build/libs/*.jar
+      - name: Attach jar to release
+        if: ${{ github.event.inputs.release_tag != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ github.event.inputs.release_tag }}" build/libs/*.jar --clobber
