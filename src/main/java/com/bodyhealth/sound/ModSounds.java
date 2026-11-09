@@ -2,7 +2,7 @@ package com.bodyhealth.sound;
 
 import com.bodyhealth.BodyHealthMod;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -32,6 +32,6 @@ public class ModSounds {
 
     private static Supplier<SoundEvent> register(String name) {
         return SOUNDS.register(name, () -> SoundEvent.createVariableRangeEvent(
-                ResourceLocation.fromNamespaceAndPath(BodyHealthMod.MOD_ID, name)));
+                Identifier.fromNamespaceAndPath(BodyHealthMod.MOD_ID, name)));
     }
 }

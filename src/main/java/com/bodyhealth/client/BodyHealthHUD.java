@@ -5,11 +5,10 @@ import com.bodyhealth.client.HeartRenderer.HeartType;
 import com.bodyhealth.common.BodyPart;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
@@ -22,7 +21,6 @@ import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
  * Position, taille (HudSettings.scale, 3 = taille d'origine) et mode sont
  * réglables dans le menu H et sauvegardés.
  */
-@OnlyIn(Dist.CLIENT)
 public class BodyHealthHUD {
 
     // Silhouette : canvas 16x32 dessiné à l'échelle fixe 3 (l'overlay entier est ensuite mis à l'échelle)
@@ -69,7 +67,7 @@ public class BodyHealthHUD {
         if (mc.player.getAbilities().instabuild) return;          // comme la barre de faim
         if (!ClientBodyHealthData.isModEnabled()) return;         // mod désactivé côté serveur
 
-        GuiGraphics gui  = event.getGuiGraphics();
+        GuiGraphicsExtractor gui  = event.getGuiGraphics();
         Font        font = mc.font;
         int sw = mc.getWindow().getGuiScaledWidth();
         int sh = mc.getWindow().getGuiScaledHeight();
@@ -116,9 +114,9 @@ public class BodyHealthHUD {
         lastX = px; lastY = py; lastW = shownW; lastH = shownH;
         lastRenderMs = System.currentTimeMillis();
 
-        gui.pose().pushPose();
-        gui.pose().translate((float) px, (float) py, 0f);
-        gui.pose().scale(k, k, 1f);
+        gui.pose().pushMatrix();
+        gui.pose().translate((float) px, (float) py);
+        gui.pose().scale(k, k);
 
         // Fond + bordure
         gui.fill(0, 0, panelW, panelH, 0xAA1A2030);
@@ -136,10 +134,10 @@ public class BodyHealthHUD {
         for (int i = 0; i < ORDER.length; i++)
             renderRow(gui, font, ORDER[i], names[i], listX, listY + i * ROW_H, labelW, hType, i, mode);
 
-        gui.pose().popPose();
+        gui.pose().popMatrix();
     }
 
-    private void renderBodyComposite(GuiGraphics gui, int ox, int oy) {
+    private void renderBodyComposite(GuiGraphicsExtractor gui, int ox, int oy) {
         for (int i = 0; i < ORDER.length; i++) {
             float hp    = ClientBodyHealthData.getHealth(ORDER[i]);
             float maxHp = ClientBodyHealthData.getMaxHealth(ORDER[i]);
@@ -147,18 +145,18 @@ public class BodyHealthHUD {
             float hpForColor = flash ? Math.min(hp, maxHp * 0.33f - 0.01f) : hp;
             String color = colorFor(hpForColor, maxHp);
 
-            ResourceLocation tex = ResourceLocation.fromNamespaceAndPath(BodyHealthMod.MOD_ID,
+            Identifier tex = Identifier.fromNamespaceAndPath(BodyHealthMod.MOD_ID,
                 "textures/gui/body_parts/" + PART_FILE[i] + "-" + color + "-cropped.png");
 
             int dx = ox + PART_X[i] * FIG_SCALE;
             int dy = oy + PART_Y[i] * FIG_SCALE;
             int dw = PART_SW[i] * FIG_SCALE;
             int dh = PART_SH[i] * FIG_SCALE;
-            gui.blit(tex, dx, dy, dw, dh, 0, 0, PART_SW[i], PART_SH[i], PART_SW[i], PART_SH[i]);
+            gui.blit(RenderPipelines.GUI_TEXTURED, tex, dx, dy, 0f, 0f, dw, dh, PART_SW[i], PART_SH[i], PART_SW[i], PART_SH[i]);
         }
     }
 
-    private void renderRow(GuiGraphics gui, Font font, BodyPart part, Component label,
+    private void renderRow(GuiGraphicsExtractor gui, Font font, BodyPart part, Component label,
                            int x, int y, int labelW, HeartType hType, int index,
                            HudSettings.Mode mode) {
         float hp    = ClientBodyHealthData.getHealth(part);
@@ -174,7 +172,7 @@ public class BodyHealthHUD {
         else if (crit)  labelColor = blink ? 0xFFFF4400 : 0xFFFF8800;
         else            labelColor = 0xFFDDDDDD;
 
-        gui.drawString(font, label, x, y + 1, labelColor, false);
+        gui.text(font, label, x, y + 1, labelColor, false);
 
         int cx = x + labelW;
         if (mode == HudSettings.Mode.TEXT) {
@@ -188,10 +186,10 @@ public class BodyHealthHUD {
             else                    valueColor = 0xFF55FF55;
 
             String main = mainText(part);
-            gui.drawString(font, main, cx, y + 1, valueColor, false);
+            gui.text(font, main, cx, y + 1, valueColor, false);
             String abs = absorbText(part);
             if (!abs.isEmpty())
-                gui.drawString(font, abs, cx + font.width(main), y + 1, 0xFFFFD84A, false);
+                gui.text(font, abs, cx + font.width(main), y + 1, 0xFFFFD84A, false);
         } else {
             HeartRenderer.renderHearts(gui, cx, y, dead ? 0 : hp, maxHp,
                     ClientBodyHealthData.getAbsorption(part), crit, hType, Integer.MAX_VALUE);

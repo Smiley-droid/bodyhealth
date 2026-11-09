@@ -8,7 +8,6 @@ import com.bodyhealth.item.ModCreativeTab;
 import com.bodyhealth.item.ModItems;
 import com.bodyhealth.network.NetworkRegistry;
 import com.bodyhealth.sound.ModSounds;
-import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
@@ -25,7 +24,15 @@ public class BodyHealthMod {
 
     public BodyHealthMod(IEventBus modEventBus, ModContainer container) {
         this.modEventBus = modEventBus;
-        container.registerConfig(ModConfig.Type.SERVER, BodyHealthConfig.SPEC);
+        // Le type de config serveur a été renommé : SERVER (26.1, 26.2) -> SYNCED (26.3+).
+        // On le choisit à l'exécution pour que le même code source compile sur toute la famille 26.x.
+        ModConfig.Type serverType;
+        try {
+            serverType = ModConfig.Type.valueOf("SYNCED");
+        } catch (IllegalArgumentException e) {
+            serverType = ModConfig.Type.valueOf("SERVER");
+        }
+        container.registerConfig(serverType, BodyHealthConfig.SPEC);
         container.registerConfig(ModConfig.Type.CLIENT, com.bodyhealth.config.BodyHealthClientConfig.SPEC);
 
         // Registres
@@ -49,12 +56,5 @@ public class BodyHealthMod {
         // Commandes
         NeoForge.EVENT_BUS.addListener((RegisterCommandsEvent e) ->
                 BodyHealthCommand.register(e.getDispatcher()));
-
-        // Client — enregistré dès la construction du mod (voir ClientInit).
-        // Le test de distribution garantit que ClientInit n'est jamais chargée
-        // sur un serveur dédié.
-        if (net.neoforged.fml.loading.FMLEnvironment.dist == net.neoforged.api.distmarker.Dist.CLIENT) {
-            com.bodyhealth.client.ClientInit.init(modEventBus);
-        }
     }
 }

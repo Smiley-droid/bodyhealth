@@ -1,11 +1,11 @@
 package com.bodyhealth.client;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * Menu de réglages de l'overlay (touche H par défaut).
@@ -15,7 +15,6 @@ import net.neoforged.api.distmarker.OnlyIn;
  * Les réglages sont sauvegardés à la fermeture (config/bodyhealth-hud.json).
  * Le panneau est à gauche pour laisser voir l'aperçu en direct en bas à droite.
  */
-@OnlyIn(Dist.CLIENT)
 public class HudSettingsScreen extends Screen {
 
     private static final int STEP = 5;
@@ -83,10 +82,10 @@ public class HudSettingsScreen extends Screen {
 
     /** Pas de flou ni d'assombrissement : l'aperçu de l'overlay reste net. */
     @Override
-    public void renderBackground(GuiGraphics g, int mx, int my, float dt) { }
+    public void extractBackground(GuiGraphicsExtractor g, int mx, int my, float dt) { }
 
     @Override
-    public void render(GuiGraphics g, int mx, int my, float dt) {
+    public void extractRenderState(GuiGraphicsExtractor g, int mx, int my, float dt) {
         int x  = panelX();
         int y  = panelY();
         int cx = x + PW / 2;
@@ -98,25 +97,25 @@ public class HudSettingsScreen extends Screen {
         g.fill(x,          y,          x + 1,      y + PH,     0xFF5566AA);
         g.fill(x + PW - 1, y,          x + PW,     y + PH,     0xFF223366);
 
-        g.drawCenteredString(font, this.title, cx, y + 10, 0xFFFFFFFF);
+        g.centeredText(font, this.title, cx, y + 10, 0xFFFFFFFF);
 
         boolean visible = System.currentTimeMillis() - BodyHealthHUD.lastRenderMs < 300;
         if (!visible)
-            g.drawCenteredString(font, Component.translatable("bodyhealth.hud.not_visible"), cx, y + 24, 0xFFFF8888);
+            g.centeredText(font, Component.translatable("bodyhealth.hud.not_visible"), cx, y + 24, 0xFFFF8888);
 
-        g.drawCenteredString(font, Component.translatable("bodyhealth.hud.display"),  cx, y + 32, 0xFFAAAAAA);
-        g.drawCenteredString(font, Component.translatable("bodyhealth.hud.position"), cx, y + 76, 0xFFAAAAAA);
-        g.drawCenteredString(font, "X: " + HudSettings.offsetX + "   Y: " + HudSettings.offsetY,
+        g.centeredText(font, Component.translatable("bodyhealth.hud.display"),  cx, y + 32, 0xFFAAAAAA);
+        g.centeredText(font, Component.translatable("bodyhealth.hud.position"), cx, y + 76, 0xFFAAAAAA);
+        g.centeredText(font, "X: " + HudSettings.offsetX + "   Y: " + HudSettings.offsetY,
                 cx, y + 160, 0xFFDDDDDD);
 
-        g.drawCenteredString(font, Component.translatable("bodyhealth.hud.size"), cx, y + 168 - 2 + 0, 0xFFAAAAAA);
-        g.drawCenteredString(font, String.valueOf(HudSettings.scale) + " / " + HudSettings.MAX_SCALE,
+        g.centeredText(font, Component.translatable("bodyhealth.hud.size"), cx, y + 168 - 2 + 0, 0xFFAAAAAA);
+        g.centeredText(font, String.valueOf(HudSettings.scale) + " / " + HudSettings.MAX_SCALE,
                 cx, y + 178 + 6, 0xFFDDDDDD);
 
-        g.drawCenteredString(font, Component.translatable("bodyhealth.hud.drag_hint"),
+        g.centeredText(font, Component.translatable("bodyhealth.hud.drag_hint"),
                 cx, y + PH - 16, 0xFF888888);
 
-        super.render(g, mx, my, dt);
+        super.extractRenderState(g, mx, my, dt);
     }
 
     // ── Glisser-déposer de l'overlay ──────────────────────────────────────────
@@ -128,44 +127,44 @@ public class HudSettingsScreen extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(double mx, double my, int button) {
-        if (super.mouseClicked(mx, my, button)) return true;
-        if (button == 0 && overHud(mx, my)) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        if (super.mouseClicked(event, doubleClick)) return true;
+        if (event.button() == 0 && overHud(event.x(), event.y())) {
             dragging = true;
-            grabX = mx - BodyHealthHUD.lastX;
-            grabY = my - BodyHealthHUD.lastY;
+            grabX = event.x() - BodyHealthHUD.lastX;
+            grabY = event.y() - BodyHealthHUD.lastY;
             return true;
         }
         return false;
     }
 
     @Override
-    public boolean mouseDragged(double mx, double my, int button, double dx, double dy) {
-        if (dragging && button == 0) {
-            int left = (int) Math.round(mx - grabX);
-            int top  = (int) Math.round(my - grabY);
+    public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
+        if (dragging && event.button() == 0) {
+            int left = (int) Math.round(event.x() - grabX);
+            int top  = (int) Math.round(event.y() - grabY);
             HudSettings.offsetX = Math.max(0, this.width  - BodyHealthHUD.MARGIN_RIGHT - BodyHealthHUD.lastW - left);
             HudSettings.offsetY = Math.max(0, this.height - BodyHealthHUD.MARGIN_BOT   - BodyHealthHUD.lastH - top);
             return true;
         }
-        return super.mouseDragged(mx, my, button, dx, dy);
+        return super.mouseDragged(event, dx, dy);
     }
 
     @Override
-    public boolean mouseReleased(double mx, double my, int button) {
-        if (button == 0) dragging = false;
-        return super.mouseReleased(mx, my, button);
+    public boolean mouseReleased(MouseButtonEvent event) {
+        if (event.button() == 0) dragging = false;
+        return super.mouseReleased(event);
     }
 
     @Override
-    public boolean keyPressed(int key, int scan, int mods) {
-        switch (key) {
+    public boolean keyPressed(KeyEvent keyEvent) {
+        switch (keyEvent.key()) {
             case 265 -> { adjY( STEP); return true; } // haut
             case 264 -> { adjY(-STEP); return true; } // bas
             case 263 -> { adjX( STEP); return true; } // gauche
             case 262 -> { adjX(-STEP); return true; } // droite
         }
-        return super.keyPressed(key, scan, mods);
+        return super.keyPressed(keyEvent);
     }
 
     @Override

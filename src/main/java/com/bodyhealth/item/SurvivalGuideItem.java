@@ -7,7 +7,7 @@ import com.bodyhealth.network.OpenGuidePacket;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -36,20 +36,20 @@ import java.util.List;
  */
 public class SurvivalGuideItem extends Item {
 
-    public SurvivalGuideItem() {
-        super(new Item.Properties().stacksTo(1));
+    public SurvivalGuideItem(Item.Properties props) {
+        super(props.stacksTo(1));
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
         // FIX — Exécution côté SERVEUR uniquement (accès aux vraies données)
-        if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
+        if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
             BodyHealthData data = BodyHealthAPI.getData(serverPlayer);
             // Envoyer les données au client via paquet → client affiche le guide
             PacketDistributor.sendToPlayer(serverPlayer,
                     new OpenGuidePacket(data.serializeNBT()));
         }
-        return InteractionResultHolder.sidedSuccess(player.getItemInHand(hand), level.isClientSide);
+        return InteractionResult.SUCCESS;
     }
 
     /**
@@ -161,10 +161,9 @@ public class SurvivalGuideItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext ctx,
-                                List<Component> lines, TooltipFlag flag) {
-        lines.add(Component.translatable("item.bodyhealth.survival_guide.use"));
-        lines.add(Component.translatable("item.bodyhealth.survival_guide.desc2"));
-        lines.add(Component.translatable("item.bodyhealth.survival_guide.craft"));
+    public void appendHoverText(ItemStack stack, TooltipContext ctx, TooltipDisplay display, Consumer<Component> lines, TooltipFlag flag) {
+        lines.accept(Component.translatable("item.bodyhealth.survival_guide.use"));
+        lines.accept(Component.translatable("item.bodyhealth.survival_guide.desc2"));
+        lines.accept(Component.translatable("item.bodyhealth.survival_guide.craft"));
     }
 }

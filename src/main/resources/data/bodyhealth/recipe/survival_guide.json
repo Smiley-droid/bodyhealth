@@ -1,8 +1,9 @@
 {
   "type": "minecraft:crafting_shapeless",
+  "category": "misc",
   "ingredients": [
-    { "item": "minecraft:book" },
-    { "item": "minecraft:bone" }
+    "minecraft:book",
+    "minecraft:bone"
   ],
   "result": {
     "id": "bodyhealth:survival_guide",

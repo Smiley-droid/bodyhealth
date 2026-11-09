@@ -88,5 +88,6 @@
   "bodyhealth.msg.arm_r_break": "§c☠ Bras droit détruit — impossible de casser des blocs.",
   "bodyhealth.msg.arm_r_warn": "§e⚠ Bras droit critique — agissez rapidement !",
   "bodyhealth.msg.arm_r_place": "§c☠ Bras droit détruit — impossible de poser des blocs.",
-  "bodyhealth.msg.arm_r_use": "§c☠ Bras droit détruit — impossible d'utiliser cet objet."
+  "bodyhealth.msg.arm_r_use": "§c☠ Bras droit détruit — impossible d'utiliser cet objet.",
+  "key.category.bodyhealth.main": "Body Health"
 }

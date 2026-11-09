@@ -1,9 +1,10 @@
 package com.bodyhealth.client;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.effect.MobEffects;
 
 /**
@@ -40,14 +41,14 @@ public class HeartRenderer {
     }
 
     /** Rendu sans maxWidth (ligne unique). */
-    public static void renderHearts(GuiGraphics gui, int x, int y,
+    public static void renderHearts(GuiGraphicsExtractor gui, int x, int y,
                                      float hp, float maxHp,
                                      boolean critical, HeartType type) {
         renderHearts(gui, x, y, hp, maxHp, 0f, critical, type, Integer.MAX_VALUE);
     }
 
     /** Rendu avec maxWidth et absorption. */
-    public static void renderHearts(GuiGraphics gui, int x, int y,
+    public static void renderHearts(GuiGraphicsExtractor gui, int x, int y,
                                      float hp, float maxHp,
                                      boolean critical, HeartType type,
                                      int maxWidth) {
@@ -60,7 +61,7 @@ public class HeartRenderer {
      * @param absorption HP d'absorption à afficher en jaune APRÈS les cœurs normaux.
      *                   Ces cœurs s'ajoutent à droite, ils ne remplacent pas les rouges.
      */
-    public static void renderHearts(GuiGraphics gui, int x, int y,
+    public static void renderHearts(GuiGraphicsExtractor gui, int x, int y,
                                      float hp, float maxHp, float absorption,
                                      boolean critical, HeartType type,
                                      int maxWidth) {
@@ -85,19 +86,19 @@ public class HeartRenderer {
         };
         String hcInfix     = hc ? "hardcore_" : "";
         String blinkSuffix = blink ? "_blinking" : "";
-        ResourceLocation container = sprite(hc ? "container_hardcore" : "container");
+        Identifier container = sprite(hc ? "container_hardcore" : "container");
 
         for (int i = 0; i < total; i++) {
             int col = i % heartsPerRow;
             int row = i / heartsPerRow;
             int hx  = x + col * (H + GAP);
             int hy  = y + row * (H + GAP);
-            gui.blitSprite(container, hx, hy, H, H);
+            gui.blitSprite(RenderPipelines.GUI_TEXTURED, container, hx, hy, H, H);
             if (hp > 0) {
                 if (i < full)
-                    gui.blitSprite(sprite(prefix + hcInfix + "full" + blinkSuffix), hx, hy, H, H);
+                    gui.blitSprite(RenderPipelines.GUI_TEXTURED, sprite(prefix + hcInfix + "full" + blinkSuffix), hx, hy, H, H);
                 else if (i == full && half)
-                    gui.blitSprite(sprite(prefix + hcInfix + "half" + blinkSuffix), hx, hy, H, H);
+                    gui.blitSprite(RenderPipelines.GUI_TEXTURED, sprite(prefix + hcInfix + "half" + blinkSuffix), hx, hy, H, H);
             }
         }
 
@@ -117,17 +118,17 @@ public class HeartRenderer {
                 int hy  = y + row * (H + GAP);
 
                 // Conteneur absorption (doré)
-                gui.blitSprite(sprite("container"), hx, hy, H, H);
+                gui.blitSprite(RenderPipelines.GUI_TEXTURED, sprite("container"), hx, hy, H, H);
 
                 if (i < absFull)
-                    gui.blitSprite(sprite("absorbing_" + hcInfix + "full"), hx, hy, H, H);
+                    gui.blitSprite(RenderPipelines.GUI_TEXTURED, sprite("absorbing_" + hcInfix + "full"), hx, hy, H, H);
                 else if (i == absFull && absHalf)
-                    gui.blitSprite(sprite("absorbing_" + hcInfix + "half"), hx, hy, H, H);
+                    gui.blitSprite(RenderPipelines.GUI_TEXTURED, sprite("absorbing_" + hcInfix + "half"), hx, hy, H, H);
             }
         }
     }
 
-    private static ResourceLocation sprite(String name) {
-        return ResourceLocation.fromNamespaceAndPath("minecraft", "hud/heart/" + name);
+    private static Identifier sprite(String name) {
+        return Identifier.fromNamespaceAndPath("minecraft", "hud/heart/" + name);
     }
 }

@@ -2,10 +2,10 @@ package com.bodyhealth.network;
 
 import com.bodyhealth.BodyHealthMod;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 /**
@@ -22,13 +22,10 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 public record OpenGuidePacket(CompoundTag healthData) implements CustomPacketPayload {
 
     public static final Type<OpenGuidePacket> TYPE =
-            new Type<>(ResourceLocation.fromNamespaceAndPath(BodyHealthMod.MOD_ID, "open_guide"));
+            new Type<>(Identifier.fromNamespaceAndPath(BodyHealthMod.MOD_ID, "open_guide"));
 
-    public static final StreamCodec<FriendlyByteBuf, OpenGuidePacket> CODEC =
-            StreamCodec.of(
-                    (buf, pkt) -> buf.writeNbt(pkt.healthData()),
-                    buf -> new OpenGuidePacket(buf.readNbt())
-            );
+    public static final StreamCodec<io.netty.buffer.ByteBuf, OpenGuidePacket> CODEC =
+            ByteBufCodecs.fromCodec(CompoundTag.CODEC).map(OpenGuidePacket::new, OpenGuidePacket::healthData);
 
     @Override
     public Type<? extends CustomPacketPayload> type() { return TYPE; }

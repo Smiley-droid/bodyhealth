@@ -11,11 +11,11 @@ public class ModItems {
             DeferredRegister.createItems(BodyHealthMod.MOD_ID);
 
     public static final DeferredItem<Item> BANDAGE =
-            ITEMS.register("bandage", BandageItem::new);
+            ITEMS.registerItem("bandage", BandageItem::new);
     public static final DeferredItem<Item> MEDICAL_KIT =
-            ITEMS.register("medical_kit", MedicalKitItem::new);
+            ITEMS.registerItem("medical_kit", MedicalKitItem::new);
     public static final DeferredItem<Item> MORPHINE_SYRINGE =
-            ITEMS.register("morphine_syringe", MorphineSyringeItem::new);
+            ITEMS.registerItem("morphine_syringe", MorphineSyringeItem::new);
     public static final DeferredItem<Item> SURVIVAL_GUIDE =
-            ITEMS.register("survival_guide", SurvivalGuideItem::new);
+            ITEMS.registerItem("survival_guide", SurvivalGuideItem::new);
 }

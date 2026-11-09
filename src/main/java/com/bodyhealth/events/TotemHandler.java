@@ -53,7 +53,7 @@ public class TotemHandler {
         // Effets vanilla du totem (invisibles)
         player.removeAllEffects();
         player.addEffect(new MobEffectInstance(MobEffects.REGENERATION,      900, 1, false, false, false));
-        player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 900, 1, false, false, false));
+        player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, 900, 1, false, false, false));
 
         // Animation totem
         if (player.level() instanceof net.minecraft.server.level.ServerLevel sl)

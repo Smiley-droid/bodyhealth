@@ -2,8 +2,6 @@ package com.bodyhealth.client;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * Logique client du Guide de Survie — isolée dans SON PROPRE fichier .class.
@@ -23,7 +21,6 @@ import net.neoforged.api.distmarker.OnlyIn;
  * n'arrive jamais sur un serveur dédié (playToClient = le serveur envoie,
  * jamais ne reçoit/exécute ce handler).
  */
-@OnlyIn(Dist.CLIENT)
 public class ClientGuideHandler {
 
     public static void handle(CompoundTag healthData) {

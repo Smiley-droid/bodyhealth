@@ -78,8 +78,8 @@ public class PlayerTickHandler {
         if (BodyHealthConfig.ENABLE_SLOWNESS.get()) {
             boolean lc = data.isCritical(BodyPart.LEG_LEFT)  || data.isDead(BodyPart.LEG_LEFT);
             boolean rc = data.isCritical(BodyPart.LEG_RIGHT) || data.isDead(BodyPart.LEG_RIGHT);
-            if (lc && rc)      player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 25, 2, false, false, false));
-            else if (lc || rc) player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 25, 1, false, false, false));
+            if (lc && rc)      player.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 25, 2, false, false, false));
+            else if (lc || rc) player.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 25, 1, false, false, false));
         }
     }
 
@@ -102,6 +102,6 @@ public class PlayerTickHandler {
 
     private boolean isMorphineActive(ServerPlayer player) {
         return System.currentTimeMillis() <
-                player.getPersistentData().getLong(MorphineSyringeItem.NBT_MORPHINE_ACTIVE);
+                player.getPersistentData().getLongOr(MorphineSyringeItem.NBT_MORPHINE_ACTIVE, 0L);
     }
 }

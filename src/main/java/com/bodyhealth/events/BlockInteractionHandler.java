@@ -8,7 +8,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
-import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,7 +29,7 @@ public class BlockInteractionHandler {
     private static final long MSG_COOLDOWN_MS = 2000L;
 
     @SubscribeEvent
-    public void onBlockBreak(BlockEvent.BreakEvent event) {
+    public void onBlockBreak(BreakBlockEvent event) {
         if (!(event.getPlayer() instanceof ServerPlayer player)) return;
         if (!BodyHealthConfig.ENABLED.get()) return; // mod désactivé → comportement vanilla
         if (!BodyHealthConfig.ENABLE_BLOCKING_DISABLE.get()) return;

@@ -47,7 +47,7 @@ public class DamageEventHandler {
         UUID uuid = player.getUUID();
         if (killingInProgress.contains(uuid)) return;
 
-        float damage = event.getNewDamage();
+        float damage = event.getHealthDamage();
         if (damage <= 0) { pendingAttacker.remove(uuid); return; }
 
         Entity   attacker = pendingAttacker.remove(uuid);
@@ -86,7 +86,7 @@ public class DamageEventHandler {
             killingInProgress.add(uuid);
             try {
                 player.setHealth(0f);
-                player.kill();
+                player.kill((net.minecraft.server.level.ServerLevel) player.level());
             } finally {
                 killingInProgress.remove(uuid);
             }
@@ -146,8 +146,8 @@ public class DamageEventHandler {
             ItemStack boots = player.getItemBySlot(EquipmentSlot.FEET);
             int ffLvl = EnchantmentHelper.getItemEnchantmentLevel(
                     level.registryAccess()
-                         .registryOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT)
-                         .getHolderOrThrow(Enchantments.FEATHER_FALLING),
+                         .lookupOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT)
+                         .getOrThrow(Enchantments.FEATHER_FALLING),
                     boots);
             if (ffLvl > 0) {
                 float reduction = Math.min(ffLvl * 0.12f, 0.48f);
@@ -156,8 +156,8 @@ public class DamageEventHandler {
             }
         }
 
-        if (player.hasEffect(MobEffects.DAMAGE_RESISTANCE)) {
-            int resLvl = player.getEffect(MobEffects.DAMAGE_RESISTANCE).getAmplifier() + 1;
+        if (player.hasEffect(MobEffects.RESISTANCE)) {
+            int resLvl = player.getEffect(MobEffects.RESISTANCE).getAmplifier() + 1;
             if (resLvl >= 5) return 0f;
             float reduction = Math.min(resLvl * 0.20f, 0.80f);
             damage *= (1f - reduction);
@@ -168,8 +168,8 @@ public class DamageEventHandler {
 
     private int getEnchantmentSum(ServerPlayer player, net.minecraft.resources.ResourceKey<net.minecraft.world.item.enchantment.Enchantment> enchKey) {
         var registry = player.level().registryAccess()
-                .registryOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT);
-        var holder = registry.getHolder(enchKey).orElse(null);
+                .lookupOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT);
+        var holder = registry.get(enchKey).orElse(null);
         if (holder == null) return 0;
 
         int total = 0;
@@ -219,7 +219,7 @@ public class DamageEventHandler {
             int armAmp = -1
                     + destroyedAmplifier(data, BodyPart.ARM_LEFT)
                     + destroyedAmplifier(data, BodyPart.ARM_RIGHT);
-            applyEffectWithAmplifier(player, MobEffects.DIG_SLOWDOWN, armAmp);
+            applyEffectWithAmplifier(player, MobEffects.MINING_FATIGUE, armAmp);
         }
 
         // LEG_LEFT + LEG_RIGHT → Lenteur
@@ -227,13 +227,13 @@ public class DamageEventHandler {
             int legAmp = -1
                     + destroyedAmplifier(data, BodyPart.LEG_LEFT)
                     + destroyedAmplifier(data, BodyPart.LEG_RIGHT);
-            applyEffectWithAmplifier(player, MobEffects.MOVEMENT_SLOWDOWN, legAmp);
+            applyEffectWithAmplifier(player, MobEffects.SLOWNESS, legAmp);
         }
 
         // Nausée tête — appliquée séparément (pas dans le système amplifier SrGnis,
         // gardé tel quel car déjà présent et apprécié)
         if (BodyHealthConfig.ENABLE_NAUSEA.get() && data.isCritical(BodyPart.HEAD)) {
-            player.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 100, 0, false, false, false));
+            player.addEffect(new MobEffectInstance(MobEffects.NAUSEA, 100, 0, false, false, false));
         }
 
         // Bras droit détruit → empêche casser/poser (géré dans BlockInteractionHandler,
@@ -322,6 +322,9 @@ public class DamageEventHandler {
 
     @SubscribeEvent
     public void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
+        // JSON à jour à la déconnexion (la régénération passive ne l'écrit pas)
+        if (event.getEntity() instanceof ServerPlayer sp && BodyHealthConfig.ENABLED.get())
+            com.bodyhealth.common.BodyHealthDiskManager.saveJson(sp, BodyHealthAPI.getData(sp));
         UUID uuid = event.getEntity().getUUID();
         pendingAttacker.remove(uuid);
         killingInProgress.remove(uuid);
@@ -359,6 +362,9 @@ public class DamageEventHandler {
             BodyHealthSyncManager.markDirtyAndFlush(player, data);
             return;
         }
+
+        // ── Modification faite pendant que le joueur était hors ligne ─────────
+        com.bodyhealth.common.BodyHealthDiskManager.applyPending(player, data);
 
         // ── Fallback JSON si les données NBT sont vides (migration/corruption) ─
         boolean isDefault = true;

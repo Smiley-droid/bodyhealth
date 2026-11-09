@@ -32,7 +32,7 @@ public class PotionHealHandler {
 
         // Si morphine active → potion de regen bloquée aussi
         long blockedUntil = player.getPersistentData()
-                .getLong(MorphineSyringeItem.NBT_MORPHINE_ACTIVE);
+                .getLongOr(MorphineSyringeItem.NBT_MORPHINE_ACTIVE, 0L);
         if (System.currentTimeMillis() < blockedUntil) return;
 
         boolean hasRegen = player.hasEffect(MobEffects.REGENERATION);

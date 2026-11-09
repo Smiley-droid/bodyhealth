@@ -2,22 +2,19 @@ package com.bodyhealth.network;
 
 import com.bodyhealth.common.BodyHealthData;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record SyncBodyHealthPacket(CompoundTag data) implements CustomPacketPayload {
 
     public static final Type<SyncBodyHealthPacket> TYPE =
-            new Type<>(ResourceLocation.fromNamespaceAndPath("bodyhealth", "sync_health"));
+            new Type<>(Identifier.fromNamespaceAndPath("bodyhealth", "sync_health"));
 
-    public static final StreamCodec<FriendlyByteBuf, SyncBodyHealthPacket> CODEC =
-            StreamCodec.of(
-                    (buf, pkt) -> buf.writeNbt(pkt.data()),
-                    buf -> new SyncBodyHealthPacket(buf.readNbt())
-            );
+    public static final StreamCodec<io.netty.buffer.ByteBuf, SyncBodyHealthPacket> CODEC =
+            ByteBufCodecs.fromCodec(CompoundTag.CODEC).map(SyncBodyHealthPacket::new, SyncBodyHealthPacket::data);
 
     public static SyncBodyHealthPacket from(BodyHealthData data) {
         return new SyncBodyHealthPacket(data.serializeNBT());
@@ -36,7 +33,7 @@ public record SyncBodyHealthPacket(CompoundTag data) implements CustomPacketPayl
         context.enqueueWork(() -> {
             // Mettre à jour l'état "enabled" transmis dans le NBT
             com.bodyhealth.client.ClientBodyHealthData.setModEnabled(
-                !packet.data().contains("disabled") || !packet.data().getBoolean("disabled"));
+                !packet.data().getBoolean("disabled").orElse(false));
             com.bodyhealth.client.ClientBodyHealthData.update(packet.data());
         });
     }

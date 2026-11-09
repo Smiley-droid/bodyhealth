@@ -3,22 +3,24 @@ package com.bodyhealth.client;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.settings.KeyConflictContext;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
-@OnlyIn(Dist.CLIENT)
 public class BodyHealthKeyBindings {
+
+    /** Catégorie affichée dans Options > Contrôles (clé de langue key.category.bodyhealth.main). */
+    public static final KeyMapping.Category CATEGORY =
+            new KeyMapping.Category(net.minecraft.resources.Identifier.fromNamespaceAndPath(
+                    com.bodyhealth.BodyHealthMod.MOD_ID, "main"));
 
     public static final KeyMapping OPEN_HUD_SETTINGS = new KeyMapping(
             "key.bodyhealth.hud_settings",
             KeyConflictContext.IN_GAME,
             InputConstants.Type.KEYSYM,
             InputConstants.KEY_H,
-            "key.categories.bodyhealth"
+            CATEGORY
     );
 
     /**
@@ -26,6 +28,7 @@ public class BodyHealthKeyBindings {
      * appelé depuis ClientInit.init() (constructeur du mod)
      */
     public static void registerKeyMappings(RegisterKeyMappingsEvent event) {
+        event.registerCategory(CATEGORY);
         event.register(OPEN_HUD_SETTINGS);
     }
 

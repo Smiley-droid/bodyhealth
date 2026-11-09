@@ -1,6 +1,7 @@
 package com.bodyhealth.common;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.nbt.CompoundTag;
 
 import java.util.EnumMap;
@@ -18,6 +19,9 @@ public class BodyHealthData {
                     tag -> { BodyHealthData d = new BodyHealthData(); d.deserializeNBT(tag); return d; },
                     BodyHealthData::serializeNBT
             );
+
+    /** Même structure NBT qu'en 1.21.1 : les champs sont fusionnés dans le tag de l'attachement. */
+    public static final MapCodec<BodyHealthData> MAP_CODEC = MapCodec.assumeMapUnsafe(CODEC);
 
     public BodyHealthData() {
         for (BodyPart part : BodyPart.values()) {
@@ -109,23 +113,14 @@ public class BodyHealthData {
     }
 
     public void deserializeNBT(CompoundTag tag) {
-        if (tag.contains("health")) {
-            CompoundTag h = tag.getCompound("health");
-            for (BodyPart p : BodyPart.values())
-                if (h.contains(p.getId()))
-                    currentHealth.put(p, h.getFloat(p.getId()));
-        }
-        if (tag.contains("maxHealth")) {
-            CompoundTag m = tag.getCompound("maxHealth");
-            for (BodyPart p : BodyPart.values())
-                if (m.contains(p.getId()))
-                    maxHealth.put(p, m.getFloat(p.getId()));
-        }
-        if (tag.contains("absorption")) {
-            CompoundTag a = tag.getCompound("absorption");
-            for (BodyPart p : BodyPart.values())
-                if (a.contains(p.getId()))
-                    absorption.put(p, a.getFloat(p.getId()));
-        }
+        // Depuis la 1.21.5 les getters de CompoundTag renvoient des Optional
+        tag.getCompound("health").ifPresent(h -> readSection(h, currentHealth));
+        tag.getCompound("maxHealth").ifPresent(m -> readSection(m, maxHealth));
+        tag.getCompound("absorption").ifPresent(a -> readSection(a, absorption));
+    }
+
+    private static void readSection(CompoundTag section, Map<BodyPart, Float> target) {
+        for (BodyPart p : BodyPart.values())
+            section.getFloat(p.getId()).ifPresent(v -> target.put(p, v));
     }
 }
