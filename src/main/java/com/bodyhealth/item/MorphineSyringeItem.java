@@ -5,7 +5,7 @@ import com.bodyhealth.common.BodyPart;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
@@ -13,7 +13,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.ItemUseAnimation;
+import net.minecraft.world.item.component.TooltipDisplay;
+import java.util.function.Consumer;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
@@ -54,13 +56,13 @@ public class MorphineSyringeItem extends Item {
     // Clé NBT pour bloquer la regen dans PlayerTickHandler
     public  static final String NBT_MORPHINE_ACTIVE = "morphine_active_until";
 
-    public MorphineSyringeItem() {
-        super(new Item.Properties().stacksTo(8));
+    public MorphineSyringeItem(Item.Properties props) {
+        super(props.stacksTo(8));
     }
 
     @Override
-    public UseAnim getUseAnimation(ItemStack stack) {
-        return UseAnim.BOW;
+    public ItemUseAnimation getUseAnimation(ItemStack stack) {
+        return UseAnimations.HEAL;
     }
 
     @Override
@@ -69,9 +71,9 @@ public class MorphineSyringeItem extends Item {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
         player.startUsingItem(hand);
-        return InteractionResultHolder.consume(player.getItemInHand(hand));
+        return InteractionResult.CONSUME;
     }
 
     @Override
@@ -82,8 +84,8 @@ public class MorphineSyringeItem extends Item {
 
         // ── Vérification overdose ─────────────────────────────────────────
         var persistentData = player.getPersistentData();
-        int  useCount  = persistentData.getInt(NBT_USE_COUNT);
-        long firstUse  = persistentData.getLong(NBT_FIRST_USE);
+        int  useCount  = persistentData.getIntOr(NBT_USE_COUNT, 0);
+        long firstUse  = persistentData.getLongOr(NBT_FIRST_USE, 0L);
 
         // Reset fenêtre si plus de 2 minutes depuis la première injection
         if (now - firstUse > OVERDOSE_WINDOW) {
@@ -104,7 +106,7 @@ public class MorphineSyringeItem extends Item {
                 Component.translatable("bodyhealth.msg.morphine_overdose"), true);
 
             // Nausée forcée 10 sec + confusion
-            player.addEffect(new MobEffectInstance(MobEffects.CONFUSION,    200, 1, false, false, false));
+            player.addEffect(new MobEffectInstance(MobEffects.NAUSEA,    200, 1, false, false, false));
             player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS,     60, 0, false, false, false));
             player.addEffect(new MobEffectInstance(MobEffects.POISON,       100, 0, false, false, false));
 
@@ -122,13 +124,13 @@ public class MorphineSyringeItem extends Item {
         // ── Effets normaux ────────────────────────────────────────────────
 
         // 1. Supprime tous les effets négatifs de blessure
-        player.removeEffect(MobEffects.CONFUSION);
-        player.removeEffect(MobEffects.MOVEMENT_SLOWDOWN);
+        player.removeEffect(MobEffects.NAUSEA);
+        player.removeEffect(MobEffects.SLOWNESS);
         player.removeEffect(MobEffects.WEAKNESS);
 
         // 2. Applique résistance (atténue douleur = moins de dégâts)
         player.addEffect(new MobEffectInstance(
-                MobEffects.DAMAGE_RESISTANCE, EFFECT_DURATION, 1, false, false, false));
+                MobEffects.RESISTANCE, EFFECT_DURATION, 1, false, false, false));
 
         // 3. Marque la regen comme bloquée (PlayerTickHandler la vérifie)
         long blockedUntil = now + (EFFECT_DURATION * 50L); // ticks → ms
@@ -146,11 +148,10 @@ public class MorphineSyringeItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext ctx,
-                                List<Component> lines, TooltipFlag flag) {
-        lines.add(Component.translatable("item.bodyhealth.morphine_syringe.desc1"));
-        lines.add(Component.translatable("item.bodyhealth.morphine_syringe.desc2"));
-        lines.add(Component.translatable("item.bodyhealth.morphine_syringe.desc3"));
-        lines.add(Component.translatable("item.bodyhealth.morphine_syringe.desc4"));
+    public void appendHoverText(ItemStack stack, TooltipContext ctx, TooltipDisplay display, Consumer<Component> lines, TooltipFlag flag) {
+        lines.accept(Component.translatable("item.bodyhealth.morphine_syringe.desc1"));
+        lines.accept(Component.translatable("item.bodyhealth.morphine_syringe.desc2"));
+        lines.accept(Component.translatable("item.bodyhealth.morphine_syringe.desc3"));
+        lines.accept(Component.translatable("item.bodyhealth.morphine_syringe.desc4"));
     }
 }

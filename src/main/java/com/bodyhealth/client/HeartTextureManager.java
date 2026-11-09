@@ -1,7 +1,7 @@
 package com.bodyhealth.client;
 
 import com.bodyhealth.BodyHealthMod;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Gère la sélection des textures de cœurs selon l'état du joueur.
@@ -22,7 +22,7 @@ public class HeartTextureManager {
     private static final String BASE = "textures/gui/hearts/";
 
     // ── Conteneur (cœur vide) ─────────────────────────────────────────────
-    public static ResourceLocation getContainer(HeartStyle style, boolean blinking) {
+    public static Identifier getContainer(HeartStyle style, boolean blinking) {
         String name = switch (style) {
             case HARDCORE -> blinking ? "container_hardcore_blinking" : "container_hardcore";
             default       -> blinking ? "container_blinking"          : "container";
@@ -31,14 +31,14 @@ public class HeartTextureManager {
     }
 
     // ── Cœur plein ────────────────────────────────────────────────────────
-    public static ResourceLocation getFull(HeartStyle style, boolean blinking, boolean hardcore) {
+    public static Identifier getFull(HeartStyle style, boolean blinking, boolean hardcore) {
         String prefix = hardcore ? toHardcorePrefix(style) : toPrefix(style);
         String suffix = blinking ? "_full_blinking" : "_full";
         return loc(prefix + suffix);
     }
 
     // ── Demi-cœur ─────────────────────────────────────────────────────────
-    public static ResourceLocation getHalf(HeartStyle style, boolean blinking, boolean hardcore) {
+    public static Identifier getHalf(HeartStyle style, boolean blinking, boolean hardcore) {
         String prefix = hardcore ? toHardcorePrefix(style) : toPrefix(style);
         String suffix = blinking ? "_half_blinking" : "_half";
         return loc(prefix + suffix);
@@ -66,10 +66,10 @@ public class HeartTextureManager {
         };
     }
 
-    private static ResourceLocation loc(String name) {
+    private static Identifier loc(String name) {
         // Corrige les doubles underscores (ex: "_full" avec prefix vide)
         String cleaned = name.startsWith("_") ? name.substring(1) : name;
-        return ResourceLocation.fromNamespaceAndPath(BodyHealthMod.MOD_ID,
+        return Identifier.fromNamespaceAndPath(BodyHealthMod.MOD_ID,
                 BASE + cleaned + ".png");
     }
 

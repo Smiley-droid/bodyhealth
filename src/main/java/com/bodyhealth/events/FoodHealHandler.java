@@ -59,7 +59,7 @@ public class FoodHealHandler {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
 
         ItemStack stack = event.getItem();
-        FoodProperties food = stack.getFoodProperties(player);
+        FoodProperties food = stack.get(net.minecraft.core.component.DataComponents.FOOD);
         if (food == null) return;
 
         // ── Formule adaptive — fonctionne avec TOUS les mods de nourriture ──

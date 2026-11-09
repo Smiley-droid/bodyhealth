@@ -22,7 +22,7 @@ public class BodyHealthCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(
             Commands.literal("bodyhealth")
-                .requires(src -> src.hasPermission(2))
+                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
 
                 .then(Commands.literal("heal")
                     .then(Commands.argument("player", EntityArgument.players())

@@ -19,7 +19,7 @@ public class BodyHealthAttachment {
     public static final Supplier<AttachmentType<BodyHealthData>> BODY_HEALTH =
             ATTACHMENT_TYPES.register("body_health", () ->
                     AttachmentType.builder(BodyHealthData::new)
-                            .serialize(BodyHealthData.CODEC)
+                            .serialize(BodyHealthData.MAP_CODEC)
                             .copyOnDeath()
                             .build()
             );

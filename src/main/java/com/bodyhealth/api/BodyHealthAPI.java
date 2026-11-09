@@ -4,16 +4,11 @@ import com.bodyhealth.common.BodyHealthAttachment;
 import com.bodyhealth.common.BodyHealthData;
 import com.bodyhealth.common.BodyPart;
 import com.bodyhealth.network.BodyHealthSyncManager;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtIo;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.storage.LevelResource;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
-import java.io.File;
-import java.nio.file.Path;
 import java.util.UUID;
 
 /**
@@ -142,7 +137,7 @@ public final class BodyHealthAPI {
 
     /**
      * Soigne toutes les parties d'un joueur déconnecté.
-     * Modifie directement le fichier .dat sur disque.
+     * Modifie leur fichier JSON ; appliqué à leur prochaine connexion.
      * Effet visible au prochain login du joueur.
      *
      * @param uuid UUID du joueur hors ligne
@@ -187,23 +182,15 @@ public final class BodyHealthAPI {
             sync(p);
         }
 
-        // Déconnectés — parcourir tous les fichiers .dat du playerdata
-        Path playerDataDir = server.getWorldPath(LevelResource.PLAYER_DATA_DIR);
-        File dir = playerDataDir.toFile();
-        if (!dir.exists()) return;
-
-        // UUIDs des connectés (à ignorer, déjà traités)
-        java.util.Set<String> online = new java.util.HashSet<>();
-        for (ServerPlayer p : server.getPlayerList().getPlayers())
-            online.add(p.getUUID().toString());
-
-        for (File datFile : dir.listFiles((d, n) -> n.endsWith(".dat"))) {
-            String uuidStr = datFile.getName().replace(".dat", "");
-            if (online.contains(uuidStr)) continue; // déjà traité
-            try {
-                UUID uuid = UUID.fromString(uuidStr);
-                modifyOfflinePlayer(uuid, action);
-            } catch (IllegalArgumentException ignored) {}
+        // Déconnectés — on modifie leur fichier JSON (appliqué à leur prochaine connexion)
+        java.util.Set<UUID> online = new java.util.HashSet<>();
+        for (ServerPlayer p : server.getPlayerList().getPlayers()) online.add(p.getUUID());
+        for (UUID uuid : com.bodyhealth.common.BodyHealthDiskManager.knownPlayers()) {
+            if (online.contains(uuid)) continue;
+            BodyHealthData data = com.bodyhealth.common.BodyHealthDiskManager.loadSnapshot(uuid);
+            if (data == null) continue;
+            action.accept(data);
+            com.bodyhealth.common.BodyHealthDiskManager.saveOfflineSnapshot(uuid, data);
         }
     }
 
@@ -216,61 +203,5 @@ public final class BodyHealthAPI {
     private static void sync(Player player) {
         if (player instanceof ServerPlayer sp)
             BodyHealthSyncManager.markDirtyAndFlush(sp, getData(sp));
-    }
-
-    /**
-     * Lit le fichier .dat d'un joueur hors ligne, applique l'action,
-     * puis réécrit le fichier sur disque.
-     *
-     * Les données Body Health sont stockées dans
-     * playerdata/<UUID>.dat → ForgeCaps → bodyhealth:body_health
-     */
-    private static void modifyOfflinePlayer(UUID uuid,
-                                             java.util.function.Consumer<BodyHealthData> action) {
-        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-        if (server == null) return;
-
-        // Si le joueur est connecté, utiliser le chemin normal
-        ServerPlayer online = server.getPlayerList().getPlayer(uuid);
-        if (online != null) {
-            action.accept(getData(online));
-            sync(online);
-            return;
-        }
-
-        Path playerDataDir = server.getWorldPath(LevelResource.PLAYER_DATA_DIR);
-        File datFile = playerDataDir.resolve(uuid + ".dat").toFile();
-        if (!datFile.exists()) return;
-
-        try {
-            // Lire le NBT complet du joueur
-            CompoundTag playerNbt = NbtIo.readCompressed(datFile.toPath(),
-                    net.minecraft.nbt.NbtAccounter.unlimitedHeap());
-
-            // Lire les données BH depuis le NBT NeoForge Attachments
-            // Chemin : playerNbt → "neoforge:attachments" → "bodyhealth:body_health"
-            CompoundTag attachments = playerNbt.contains("neoforge:attachments")
-                    ? playerNbt.getCompound("neoforge:attachments")
-                    : new CompoundTag();
-
-            CompoundTag bhTag = attachments.contains("bodyhealth:body_health")
-                    ? attachments.getCompound("bodyhealth:body_health")
-                    : new CompoundTag();
-
-            // Désérialiser, appliquer, resérialiser
-            BodyHealthData data = new BodyHealthData();
-            if (!bhTag.isEmpty()) data.deserializeNBT(bhTag);
-
-            action.accept(data);
-
-            // Réécrire
-            attachments.put("bodyhealth:body_health", data.serializeNBT());
-            playerNbt.put("neoforge:attachments", attachments);
-
-            NbtIo.writeCompressed(playerNbt, datFile.toPath());
-
-        } catch (Exception e) {
-            LOGGER.error("[BodyHealth] Erreur modification joueur hors ligne {}: {}", uuid, e.getMessage());
-        }
     }
 }

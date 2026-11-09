@@ -31,7 +31,7 @@ public class SoundHelper {
 
         player.level().playSound(
                 null,
-                player.getX(), player.getY(), player.getZ(),
+                player.blockPosition(),
                 sound,
                 SoundSource.PLAYERS,
                 1.0f,

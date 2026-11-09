@@ -88,5 +88,6 @@
   "bodyhealth.msg.arm_r_break": "§c☠ Right arm destroyed — you cannot break blocks.",
   "bodyhealth.msg.arm_r_warn": "§e⚠ Right arm critical — act quickly!",
   "bodyhealth.msg.arm_r_place": "§c☠ Right arm destroyed — you cannot place blocks.",
-  "bodyhealth.msg.arm_r_use": "§c☠ Right arm destroyed — you cannot use this item."
+  "bodyhealth.msg.arm_r_use": "§c☠ Right arm destroyed — you cannot use this item.",
+  "key.category.bodyhealth.main": "Body Health"
 }

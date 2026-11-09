@@ -1,12 +1,9 @@
 package com.bodyhealth.client;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 
-@OnlyIn(Dist.CLIENT)
 public class HideVanillaHealthEvent {
 
     @SubscribeEvent

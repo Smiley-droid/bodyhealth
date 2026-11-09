@@ -1,7 +1,5 @@
 package com.bodyhealth.client;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.NeoForge;
 
@@ -12,7 +10,6 @@ import net.neoforged.neoforge.common.NeoForge;
  * RegisterKeyMappingsEvent est déclenché AVANT FMLClientSetupEvent : s'y abonner
  * dans clientSetup() était trop tard, la touche H n'existait donc pas.
  */
-@OnlyIn(Dist.CLIENT)
 public final class ClientInit {
 
     private ClientInit() {}

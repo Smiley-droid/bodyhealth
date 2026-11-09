@@ -1,6 +1,6 @@
 # 🫀 Body Health System
 
-**NeoForge 1.21.1 · v12.7.0**
+**NeoForge 1.21.11 · v12.7.0**
 
 Replaces Minecraft's single health bar with a localized injury system: every body part has its own HP, its own critical state and its own consequences.
 
@@ -97,8 +97,8 @@ BodyHealthAPI.applyToAll(data -> data.addMaxHealthAll(4f));
 
 ## Requirements
 
-- Minecraft 1.21.1
-- NeoForge 21.1.172+
+- Minecraft 1.21.11 (Java 21)
+- NeoForge 21.11.48+
 
 ## Credits
 

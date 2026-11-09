@@ -4,8 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.fml.loading.FMLPaths;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +16,6 @@ import java.nio.file.Path;
  * Réglages de l'overlay, sauvegardés dans config/bodyhealth-hud.json
  * (position, taille, mode d'affichage). Chargés une fois au démarrage du client.
  */
-@OnlyIn(Dist.CLIENT)
 public final class HudSettings {
 
     /** Ce que l'overlay affiche. */
