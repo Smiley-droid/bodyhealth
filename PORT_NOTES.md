@@ -1,11 +1,10 @@
-# Notes de portage — NeoForge 26.1 / 26.2 / 26.3
+# Notes de portage — NeoForge 26.1
 
 **Ce code n'a pas été compilé** (aucun accès aux dépôts Maven depuis l'environnement où il a été écrit). Les API ont été vérifiées une par une dans les sources de NeoForge (tests compilés par leur CI) et dans les guides de migration officiels. Lance `./gradlew build` puis `./gradlew runClient` et renvoie-moi les erreurs éventuelles.
 
 ## Construire
 - JDK **25** (Gradle le télécharge via le toolchain), Gradle 9.2.1 (wrapper inclus).
-- Par défaut le projet vise **26.3** (`gradle.properties`). Pour 26.1 ou 26.2, remplace les lignes `minecraft_version`, `minecraft_version_range` et `neo_version` par celles de `versions/26.1.properties` ou `versions/26.2.properties`. Le même code source sert aux trois ; le jar est nommé `bodyhealth-mc<version>-12.7.0.jar`.
-- **26.1 et 26.2 n'ont pas été comparés ligne à ligne** avec la 26.3 : les API utilisées par le mod sont identiques dans les trois branches de NeoForge, sauf le nom du type de config serveur (`SERVER` en 26.1 et 26.2, `SYNCED` en 26.3), choisi automatiquement à l'exécution.
+- Cette branche vise **26.1** (dernier build NeoForge 26.1.x, version dynamique `26.1.+`).
 
 ## Config
 - Serveur, 26.3 : `config/bodyhealth-synced.toml` (surcharge par monde dans `<monde>/syncedconfig/`).

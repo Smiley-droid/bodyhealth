@@ -18,7 +18,7 @@ public class BodyHealthKeyBindings {
     public static final KeyMapping OPEN_HUD_SETTINGS = new KeyMapping(
             "key.bodyhealth.hud_settings",
             KeyConflictContext.IN_GAME,
-            InputConstants.Type.KEYBOARD,
+            InputConstants.Type.KEYSYM,
             InputConstants.KEY_H,
             CATEGORY
     );
@@ -39,9 +39,9 @@ public class BodyHealthKeyBindings {
     public void onClientTick(PlayerTickEvent.Post event) {
         if (!(event.getEntity() instanceof net.minecraft.client.player.LocalPlayer)) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.gui.screen() != null) return; // pas de capture si menu ouvert
+        if (mc.screen != null) return; // pas de capture si menu ouvert
         while (OPEN_HUD_SETTINGS.consumeClick()) {
-            mc.gui.setScreen(new HudSettingsScreen());
+            mc.setScreen(new HudSettingsScreen());
         }
     }
 }
