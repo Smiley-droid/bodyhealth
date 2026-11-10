@@ -14,7 +14,7 @@ critical effects, absorption and medical items.
 [[dependencies.${mod_id}]]
     modId="neoforge"
     type="required"
-    versionRange="[${neo_version},)"
+    versionRange="[26.2,)"
     ordering="NONE"
     side="BOTH"
 

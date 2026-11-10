@@ -185,6 +185,6 @@ public class BodyHealthDiskManager {
     private static Path getBodyHealthDir() {
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
         if (server == null) throw new IllegalStateException("Serveur non disponible");
-        return server.getWorldPath(LevelResource.DATA).resolve("bodyhealth");
+        return server.getWorldPath(LevelResource.ROOT).resolve("bodyhealth");
     }
 }

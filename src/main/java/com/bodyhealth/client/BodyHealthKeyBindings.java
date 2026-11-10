@@ -18,7 +18,7 @@ public class BodyHealthKeyBindings {
     public static final KeyMapping OPEN_HUD_SETTINGS = new KeyMapping(
             "key.bodyhealth.hud_settings",
             KeyConflictContext.IN_GAME,
-            InputConstants.Type.KEYBOARD,
+            InputConstants.Type.KEYSYM,
             InputConstants.KEY_H,
             CATEGORY
     );

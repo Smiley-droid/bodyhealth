@@ -312,7 +312,7 @@ public class DamageEventHandler {
     private void dropOffhandItem(ServerPlayer player) {
         ItemStack off = player.getOffhandItem();
         if (!off.isEmpty()) {
-            player.drop(off.copy(), false, net.minecraft.util.Prediction.SERVER_ONLY);
+            player.drop(off.copy(), false);
             player.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND, ItemStack.EMPTY);
         }
     }
