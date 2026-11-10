@@ -11,6 +11,8 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.TooltipDisplay;
+import java.util.function.Consumer;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -84,12 +86,12 @@ public class SurvivalGuideItem extends Item {
             String stateCol  = hp <= 0 ? "§8" : hp/max <= 0.34f ? "§c" : hp/max <= 0.65f ? "§e" : "§a";
             String absorbTag = absorb > 0 ? " §e+" + String.format("%.1f", absorb / 2f) + "❤" : "";
 
-            player.sendSystemMessage(Component.literal("  ")
+            player.displayClientMessage(Component.literal("  ")
                 .append(Component.translatable("bodyhealth.part." + part.getId())
                         .withStyle(net.minecraft.ChatFormatting.GRAY))
                 .append(Component.literal(": " + buildHpBar(hp, max) + " " + stateCol
                         + String.format("%.1f", hp) + "§7/§f" + String.format("%.1f", max)
-                        + absorbTag)));
+                        + absorbTag)), false);
         }
         if (!anyShown) say(player, "all_healthy");
 
@@ -135,11 +137,11 @@ public class SurvivalGuideItem extends Item {
     // ── Helpers ───────────────────────────────────────────────────────────────
 
     private static void say(Player player, String key) {
-        player.sendSystemMessage(Component.translatable("bodyhealth.guide." + key));
+        player.displayClientMessage(Component.translatable("bodyhealth.guide." + key), false);
     }
 
     private static void blank(Player player) {
-        player.sendSystemMessage(Component.literal(""));
+        player.displayClientMessage(Component.literal(""), false);
     }
 
     private static boolean isCompact() {

@@ -194,6 +194,14 @@ public final class BodyHealthAPI {
         }
     }
 
+    /** Modifie le dernier état connu d'un joueur hors ligne (appliqué à sa prochaine connexion). */
+    private static void modifyOfflinePlayer(UUID uuid, java.util.function.Consumer<BodyHealthData> action) {
+        BodyHealthData data = com.bodyhealth.common.BodyHealthDiskManager.loadSnapshot(uuid);
+        if (data == null) return;
+        action.accept(data);
+        com.bodyhealth.common.BodyHealthDiskManager.saveOfflineSnapshot(uuid, data);
+    }
+
     // ── Interne ───────────────────────────────────────────────────────────────
 
     public static BodyHealthData getData(Player player) {
