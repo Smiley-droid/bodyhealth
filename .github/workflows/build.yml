@@ -33,7 +33,7 @@ jobs:
             echo '```'
             grep -nE "error:|What went wrong|Execution failed|FAILED|Caused by|Could not|cannot find symbol|symbol:|location:|incompatible types|does not override|no suitable" build.log | cut -c1-220 | head -60
             echo '```'
-            echo '<details><summary>log (sans piles d'appels)</summary>'
+            echo '<details><summary>log without stack frames</summary>'
             echo
             echo '```'
             grep -v '^[[:space:]]*at ' build.log | grep -v '^\.\.\. [0-9]* more' | head -90 | cut -c1-200
