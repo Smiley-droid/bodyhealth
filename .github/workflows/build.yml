@@ -18,11 +18,19 @@ jobs:
         with:
           distribution: temurin
           java-version: '25'
+      - name: Resolve latest NeoForge 26.2.x
+        id: neo
+        run: |
+          curl -fsS https://maven.neoforged.net/releases/net/neoforged/neoforge/maven-metadata.xml -o meta.xml
+          V=$(grep -o "<version>26.2\.[^<]*</version>" meta.xml | sed 's/<[^>]*>//g' | sort -V | tail -1)
+          echo "Resolved NeoForge: $V"
+          test -n "$V"
+          echo "version=$V" >> "$GITHUB_OUTPUT"
       - name: Build
         run: |
           chmod +x gradlew
           set -o pipefail
-          ./gradlew build --no-daemon --stacktrace 2>&1 | tee build.log
+          ./gradlew build --no-daemon --stacktrace -Pneo_version=${{ steps.neo.outputs.version }} 2>&1 | tee build.log
       - name: Report build errors
         if: failure()
         env:
@@ -41,6 +49,14 @@ jobs:
             echo '</details>'
           } > report.md
           gh api repos/${{ github.repository }}/commits/${{ github.sha }}/comments -F body=@report.md
+      - name: Report success
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "### Build OK — ${{ github.ref_name }} — NeoForge ${{ steps.neo.outputs.version }}" > ok.md
+          ls build/libs >> ok.md
+          gh api repos/${{ github.repository }}/commits/${{ github.sha }}/comments -F body=@ok.md
       - uses: actions/upload-artifact@v4
         with:
           name: bodyhealth-mc26.2
