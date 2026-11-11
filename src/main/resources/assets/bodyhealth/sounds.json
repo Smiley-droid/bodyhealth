@@ -5,12 +5,14 @@
       {
         "name": "minecraft:entity.player.hurt",
         "pitch": 1.4,
-        "volume": 0.9
+        "volume": 0.9,
+        "type": "event"
       },
       {
         "name": "minecraft:entity.player.hurt",
         "pitch": 1.5,
-        "volume": 0.8
+        "volume": 0.8,
+        "type": "event"
       }
     ]
   },
@@ -20,12 +22,14 @@
       {
         "name": "minecraft:entity.player.hurt",
         "pitch": 1.0,
-        "volume": 1.0
+        "volume": 1.0,
+        "type": "event"
       },
       {
         "name": "minecraft:entity.player.hurt",
         "pitch": 0.9,
-        "volume": 1.0
+        "volume": 1.0,
+        "type": "event"
       }
     ]
   },
@@ -35,12 +39,14 @@
       {
         "name": "minecraft:entity.player.hurt",
         "pitch": 1.2,
-        "volume": 0.8
+        "volume": 0.8,
+        "type": "event"
       },
       {
         "name": "minecraft:entity.player.hurt",
         "pitch": 1.1,
-        "volume": 0.7
+        "volume": 0.7,
+        "type": "event"
       }
     ]
   },
@@ -50,12 +56,14 @@
       {
         "name": "minecraft:entity.player.hurt",
         "pitch": 0.7,
-        "volume": 0.9
+        "volume": 0.9,
+        "type": "event"
       },
       {
         "name": "minecraft:entity.player.hurt",
         "pitch": 0.6,
-        "volume": 1.0
+        "volume": 1.0,
+        "type": "event"
       }
     ]
   }
