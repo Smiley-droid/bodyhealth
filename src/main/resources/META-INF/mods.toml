@@ -1,0 +1,28 @@
+modLoader="javafml"
+loaderVersion="[52,)"
+license="MIT"
+
+[[mods]]
+modId="bodyhealth"
+version="12.7.1"
+displayName="Body Health System"
+logoFile="assets/bodyhealth/icon.png"
+authors="Smiley"
+description='''
+Replaces the single health bar with localized injuries: every body part has its own HP,
+critical effects, absorption and medical items.
+'''
+
+[[dependencies.bodyhealth]]
+    modId="forge"
+    mandatory=true
+    versionRange="[52,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.bodyhealth]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.21.1,1.22)"
+    ordering="NONE"
+    side="BOTH"

@@ -4,7 +4,6 @@ import com.bodyhealth.common.BodyHealthData;
 import com.bodyhealth.common.BodyHealthDiskManager;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,7 +20,7 @@ public class BodyHealthSyncManager {
         if (!com.bodyhealth.config.BodyHealthConfig.ENABLED.get())
             nbt.putBoolean("disabled", true);
         lastSent.put(player.getUUID(), nbt.copy());
-        PacketDistributor.sendToPlayer(player, new SyncBodyHealthPacket(nbt));
+        com.bodyhealth.network.NetworkRegistry.sendToPlayer(player, new SyncBodyHealthPacket(nbt));
         // Sauvegarde JSON immédiate sur disque — double backup du NBT attachment
         BodyHealthDiskManager.saveJson(player, data);
     }
@@ -46,7 +45,7 @@ public class BodyHealthSyncManager {
         if (prev != null && prev.equals(newNbt)) return;
 
         lastSent.put(uuid, newNbt.copy());
-        PacketDistributor.sendToPlayer(player, new SyncBodyHealthPacket(newNbt));
+        com.bodyhealth.network.NetworkRegistry.sendToPlayer(player, new SyncBodyHealthPacket(newNbt));
     }
 
     public static void cleanup(UUID uuid) {

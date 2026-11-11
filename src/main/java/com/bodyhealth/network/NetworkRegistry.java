@@ -1,29 +1,34 @@
 package com.bodyhealth.network;
 
-import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
-import com.bodyhealth.network.OpenGuidePacket;
-import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import com.bodyhealth.BodyHealthMod;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.network.Channel.VersionTest;
+import net.minecraftforge.network.ChannelBuilder;
+import net.minecraftforge.network.PacketDistributor;
+import net.minecraftforge.network.SimpleChannel;
 
-/**
- * Enregistrement de tous les paquets réseau du mod.
- */
+/** Canal réseau Forge (serveur -> client). */
 public class NetworkRegistry {
 
-    public static void register(RegisterPayloadHandlersEvent event) {
-        PayloadRegistrar registrar = event.registrar("1");
+    private static final int PROTOCOL_VERSION = 1;
 
-        // Paquet serveur → client : synchronisation des HP par partie
-        registrar.playToClient(
-                SyncBodyHealthPacket.TYPE,
-                SyncBodyHealthPacket.CODEC,
-                SyncBodyHealthPacket::handle
-        );
+    public static final SimpleChannel CHANNEL = ChannelBuilder
+            .named(ResourceLocation.fromNamespaceAndPath(BodyHealthMod.MOD_ID, "main"))
+            .clientAcceptedVersions(VersionTest.exact(PROTOCOL_VERSION))
+            .serverAcceptedVersions(VersionTest.exact(PROTOCOL_VERSION))
+            .networkProtocolVersion(PROTOCOL_VERSION)
+            .simpleChannel()
+                .play()
+                    .clientbound()
+                        .addMain(SyncBodyHealthPacket.class, SyncBodyHealthPacket.STREAM_CODEC, SyncBodyHealthPacket::handle)
+                        .addMain(OpenGuidePacket.class, OpenGuidePacket.STREAM_CODEC, OpenGuidePacket::handle)
+            .build();
 
-        // BUG 5 FIX — OpenGuidePacket n'était pas enregistré → guide silencieux
-        registrar.playToClient(
-                OpenGuidePacket.TYPE,
-                OpenGuidePacket.CODEC,
-                OpenGuidePacket::handle
-        );
+    /** Force le chargement de la classe (donc l'enregistrement du canal) au démarrage. */
+    public static void init() {}
+
+    public static void sendToPlayer(ServerPlayer player, Object packet) {
+        CHANNEL.send(packet, PacketDistributor.PLAYER.with(player));
     }
 }

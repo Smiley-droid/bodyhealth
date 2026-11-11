@@ -13,7 +13,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.List;
 
@@ -46,7 +45,7 @@ public class SurvivalGuideItem extends Item {
         if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
             BodyHealthData data = BodyHealthAPI.getData(serverPlayer);
             // Envoyer les données au client via paquet → client affiche le guide
-            PacketDistributor.sendToPlayer(serverPlayer,
+            com.bodyhealth.network.NetworkRegistry.sendToPlayer(serverPlayer,
                     new OpenGuidePacket(data.serializeNBT()));
         }
         return InteractionResultHolder.sidedSuccess(player.getItemInHand(hand), level.isClientSide);

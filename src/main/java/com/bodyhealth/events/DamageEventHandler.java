@@ -14,11 +14,11 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
-import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraftforge.event.entity.living.LivingDamageEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -32,14 +32,14 @@ public class DamageEventHandler {
     private final Set<UUID>         killingInProgress = new HashSet<>();
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public void onIncomingDamage(LivingIncomingDamageEvent event) {
+    public void onIncomingDamage(LivingAttackEvent event) {
         if (!BodyHealthConfig.ENABLED.get()) return;
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         pendingAttacker.put(player.getUUID(), event.getSource().getDirectEntity());
     }
 
     @SubscribeEvent(priority = EventPriority.HIGH)
-    public void onPlayerDamage(LivingDamageEvent.Post event) {
+    public void onPlayerDamage(LivingDamageEvent event) {
         if (!BodyHealthConfig.ENABLED.get()) return;
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         if (player.isDeadOrDying()) return;
@@ -47,7 +47,8 @@ public class DamageEventHandler {
         UUID uuid = player.getUUID();
         if (killingInProgress.contains(uuid)) return;
 
-        float damage = event.getNewDamage();
+        float damage = event.getAmount();
+        event.setAmount(0f); // les dégâts sont gérés par partie du corps, pas par la vie vanilla
         if (damage <= 0) { pendingAttacker.remove(uuid); return; }
 
         Entity   attacker = pendingAttacker.remove(uuid);
@@ -322,6 +323,9 @@ public class DamageEventHandler {
 
     @SubscribeEvent
     public void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
+        // JSON à jour à la déconnexion (la régénération passive ne l'écrit pas)
+        if (event.getEntity() instanceof ServerPlayer sp && BodyHealthConfig.ENABLED.get())
+            com.bodyhealth.common.BodyHealthDiskManager.saveJson(sp, BodyHealthAPI.getData(sp));
         UUID uuid = event.getEntity().getUUID();
         pendingAttacker.remove(uuid);
         killingInProgress.remove(uuid);
@@ -359,6 +363,9 @@ public class DamageEventHandler {
             BodyHealthSyncManager.markDirtyAndFlush(player, data);
             return;
         }
+
+        // ── Modification faite pendant que le joueur était hors ligne ─────────
+        com.bodyhealth.common.BodyHealthDiskManager.applyPending(player, data);
 
         // ── Fallback JSON si les données NBT sont vides (migration/corruption) ─
         boolean isDefault = true;

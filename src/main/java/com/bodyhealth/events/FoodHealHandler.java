@@ -9,9 +9,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 
 /**
  * Gestion de la nourriture → soin des parties du corps.
@@ -59,7 +58,7 @@ public class FoodHealHandler {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
 
         ItemStack stack = event.getItem();
-        FoodProperties food = stack.getFoodProperties(player);
+        FoodProperties food = stack.get(net.minecraft.core.component.DataComponents.FOOD);
         if (food == null) return;
 
         // ── Formule adaptive — fonctionne avec TOUS les mods de nourriture ──
@@ -86,7 +85,7 @@ public class FoodHealHandler {
                 Component.translatable("bodyhealth.msg.full_health"), true);
         }
 
-        PacketDistributor.sendToPlayer(player,
+        com.bodyhealth.network.NetworkRegistry.sendToPlayer(player,
                 new SyncBodyHealthPacket(data.serializeNBT()));
     }
 

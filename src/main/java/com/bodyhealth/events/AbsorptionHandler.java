@@ -5,10 +5,9 @@ import com.bodyhealth.common.BodyHealthData;
 import com.bodyhealth.common.BodyPart;
 import com.bodyhealth.network.BodyHealthSyncManager;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.TickEvent;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -57,11 +56,12 @@ public class AbsorptionHandler {
     private final Map<UUID, Float>   lastAbsHp        = new HashMap<>();
 
     @SubscribeEvent
-    public void onTick(PlayerTickEvent.Post event) {
+    public void onTick(TickEvent.PlayerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
         // Mod désactivé → ne plus toucher à player.getAbsorptionAmount()
         // pour laisser les pommes dorées et le totem fonctionner en vanilla pur
         if (!com.bodyhealth.config.BodyHealthConfig.ENABLED.get()) return;
-        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        if (!(event.player instanceof ServerPlayer player)) return;
         if (player.isDeadOrDying()) return;
 
         UUID uuid = player.getUUID();

@@ -1,30 +1,30 @@
 package com.bodyhealth.config;
 
-import net.neoforged.neoforge.common.ModConfigSpec;
+import net.minecraftforge.common.ForgeConfigSpec;
 
 public class BodyHealthConfig {
 
-    public static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
-    public static final ModConfigSpec SPEC;
+    public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
+    public static final ForgeConfigSpec SPEC;
 
-    public static final ModConfigSpec.BooleanValue ENABLED;
-    public static final ModConfigSpec.BooleanValue ACTION_BAR_MESSAGES;
-    public static final ModConfigSpec.IntValue     STARTING_HEARTS;
-    public static final ModConfigSpec.BooleanValue ENABLE_NAUSEA;
-    public static final ModConfigSpec.BooleanValue ENABLE_SLOWNESS;
-    public static final ModConfigSpec.BooleanValue ENABLE_OFFHAND_DROP;
-    public static final ModConfigSpec.BooleanValue ENABLE_BLOCKING_DISABLE;
-    public static final ModConfigSpec.BooleanValue ENABLE_PARTIAL_ARMOR;
-    public static final ModConfigSpec.BooleanValue ENABLE_CRACKED_OVERLAY;
-    public static final ModConfigSpec.DoubleValue  STATUS_EFFECT_THRESHOLD;
+    public static final ForgeConfigSpec.BooleanValue ENABLED;
+    public static final ForgeConfigSpec.BooleanValue ACTION_BAR_MESSAGES;
+    public static final ForgeConfigSpec.IntValue     STARTING_HEARTS;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_NAUSEA;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_SLOWNESS;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_OFFHAND_DROP;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_BLOCKING_DISABLE;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_PARTIAL_ARMOR;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_CRACKED_OVERLAY;
+    public static final ForgeConfigSpec.DoubleValue  STATUS_EFFECT_THRESHOLD;
 
     // Regen passive — très lente par défaut
-    public static final ModConfigSpec.BooleanValue REGEN_ENABLED;
-    public static final ModConfigSpec.DoubleValue  REGEN_RATE;
-    public static final ModConfigSpec.BooleanValue REGEN_REQUIRE_FOOD;
+    public static final ForgeConfigSpec.BooleanValue REGEN_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue  REGEN_RATE;
+    public static final ForgeConfigSpec.BooleanValue REGEN_REQUIRE_FOOD;
 
     // Nourriture — lente
-    public static final ModConfigSpec.DoubleValue  FOOD_HEAL_MULTIPLIER;
+    public static final ForgeConfigSpec.DoubleValue  FOOD_HEAL_MULTIPLIER;
 
     static {
         BUILDER.push("general");

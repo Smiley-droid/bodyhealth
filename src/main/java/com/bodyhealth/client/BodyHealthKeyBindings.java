@@ -3,12 +3,12 @@ package com.bodyhealth.client;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
-import net.neoforged.neoforge.client.settings.KeyConflictContext;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
+import net.minecraftforge.client.settings.KeyConflictContext;
+import net.minecraftforge.event.TickEvent;
 
 @OnlyIn(Dist.CLIENT)
 public class BodyHealthKeyBindings {
@@ -30,11 +30,12 @@ public class BodyHealthKeyBindings {
     }
 
     /**
-     * Handler tick — sur NeoForge.EVENT_BUS via instance enregistrée dans ClientInit.init()
+     * Handler tick — sur MinecraftForge.EVENT_BUS via instance enregistrée dans ClientInit.init()
      */
     @SubscribeEvent
-    public void onClientTick(PlayerTickEvent.Post event) {
-        if (!(event.getEntity() instanceof net.minecraft.client.player.LocalPlayer)) return;
+    public void onClientTick(TickEvent.PlayerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
+        if (!(event.player instanceof net.minecraft.client.player.LocalPlayer)) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.screen != null) return; // pas de capture si menu ouvert
         while (OPEN_HUD_SETTINGS.consumeClick()) {

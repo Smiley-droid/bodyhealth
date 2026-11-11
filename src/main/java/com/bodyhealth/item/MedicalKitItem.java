@@ -15,7 +15,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.List;
 
@@ -56,7 +55,7 @@ public class MedicalKitItem extends Item {
             Component.translatable("bodyhealth.msg.kit_healed", String.format("%.1f", totalHeal / 2f)),
             true);
 
-        PacketDistributor.sendToPlayer(player,
+        com.bodyhealth.network.NetworkRegistry.sendToPlayer(player,
                 new SyncBodyHealthPacket(data.serializeNBT()));
 
         stack.shrink(1);

@@ -1,6 +1,6 @@
 package com.bodyhealth.config;
 
-import net.neoforged.neoforge.common.ModConfigSpec;
+import net.minecraftforge.common.ForgeConfigSpec;
 
 /**
  * Options CLIENT (par joueur, fichier bodyhealth-client.toml).
@@ -9,10 +9,10 @@ import net.neoforged.neoforge.common.ModConfigSpec;
  */
 public class BodyHealthClientConfig {
 
-    private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
+    private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
 
-    public static final ModConfigSpec.BooleanValue COMPACT_GUIDE;
-    public static final ModConfigSpec SPEC;
+    public static final ForgeConfigSpec.BooleanValue COMPACT_GUIDE;
+    public static final ForgeConfigSpec SPEC;
 
     static {
         BUILDER.push("text");

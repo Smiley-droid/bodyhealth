@@ -1,51 +1,44 @@
 plugins {
     id 'java'
-    id 'net.neoforged.moddev' version '2.0.141'
+    id 'idea'
+    id 'eclipse'
+    id 'net.minecraftforge.gradle' version '[7.0.3,8)'
 }
 
-version = '12.7.1'
+version = mod_version
 group = 'com.bodyhealth'
 
 base {
-    archivesName = 'bodyhealth'
+    archivesName = 'bodyhealth-forge-mc' + minecraft_version
 }
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+// Minecraft 1.20.5+ utilise Java 21
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+minecraft {
+    mappings channel: 'official', version: minecraft_version
+
+    runs {
+        configureEach {
+            workingDir = layout.projectDirectory.dir('run')
+        }
+        register('client')
+        register('server') {
+            args '--nogui'
+        }
     }
 }
 
 repositories {
+    minecraft.mavenizer(it)
+    maven fg.forgeMaven
+    maven fg.minecraftLibsMaven
     mavenCentral()
-    maven { url = 'https://maven.neoforged.net/releases' }
-    maven { url = 'https://maven.parchmentmc.org' }
 }
 
-neoForge {
-    version = '21.1.172'
-
-    parchment {
-        mappingsVersion = '2024.11.17'
-        minecraftVersion = '1.21.1'
-    }
-
-    runs {
-        client { client() }
-        server {
-            server()
-            programArgument '--nogui'
-        }
-    }
-
-    mods {
-        bodyhealth {
-            sourceSet sourceSets.main
-        }
-    }
+dependencies {
+    implementation minecraft.dependency("net.minecraftforge:forge:${minecraft_version}-${forge_version}")
 }
-
-dependencies {}
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'

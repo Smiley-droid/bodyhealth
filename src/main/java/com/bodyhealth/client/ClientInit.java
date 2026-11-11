@@ -1,9 +1,9 @@
 package com.bodyhealth.client;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.common.NeoForge;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.common.MinecraftForge;
 
 /**
  * Tout ce qui est client-only. Appelée depuis le constructeur du mod, et
@@ -20,8 +20,8 @@ public final class ClientInit {
     public static void init(IEventBus modBus) {
         HudSettings.load();
         modBus.addListener(BodyHealthKeyBindings::registerKeyMappings);
-        NeoForge.EVENT_BUS.register(new HideVanillaHealthEvent());
-        NeoForge.EVENT_BUS.register(new BodyHealthHUD());
-        NeoForge.EVENT_BUS.register(new BodyHealthKeyBindings());
+        MinecraftForge.EVENT_BUS.register(new HideVanillaHealthEvent());
+        MinecraftForge.EVENT_BUS.register(new BodyHealthHUD());
+        MinecraftForge.EVENT_BUS.register(new BodyHealthKeyBindings());
     }
 }

@@ -15,7 +15,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.List;
 
@@ -60,7 +59,7 @@ public class BandageItem extends Item {
             Component.translatable("bodyhealth.msg.bandage_healed", String.valueOf(HEAL_AMOUNT / 2f),
                 target.displayName().withStyle(net.minecraft.ChatFormatting.WHITE)), true);
 
-        PacketDistributor.sendToPlayer(player,
+        com.bodyhealth.network.NetworkRegistry.sendToPlayer(player,
                 new SyncBodyHealthPacket(data.serializeNBT()));
         stack.shrink(1);
         return stack;

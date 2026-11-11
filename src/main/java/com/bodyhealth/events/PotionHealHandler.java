@@ -7,9 +7,8 @@ import com.bodyhealth.item.MorphineSyringeItem;
 import com.bodyhealth.network.SyncBodyHealthPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffects;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.event.TickEvent;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,9 +24,10 @@ public class PotionHealHandler {
     private final Map<UUID, Integer> regenIITicks = new HashMap<>();
 
     @SubscribeEvent
-    public void onPlayerTick(PlayerTickEvent.Post event) {
+    public void onPlayerTick(TickEvent.PlayerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
         if (!com.bodyhealth.config.BodyHealthConfig.ENABLED.get()) return; // mod désactivé → potions vanilla normales
-        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        if (!(event.player instanceof ServerPlayer player)) return;
         if (player.isDeadOrDying()) return;
 
         // Si morphine active → potion de regen bloquée aussi
@@ -62,7 +62,7 @@ public class PotionHealHandler {
         }
 
         if (changed) {
-            PacketDistributor.sendToPlayer(player,
+            com.bodyhealth.network.NetworkRegistry.sendToPlayer(player,
                     new SyncBodyHealthPacket(data.serializeNBT()));
         }
     }

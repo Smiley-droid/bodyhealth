@@ -8,11 +8,11 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
-import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.client.event.RenderGuiOverlayEvent;
+import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 
 /**
  * Overlay Body Health (coin bas-droit). Trois modes (HudSettings.mode) :
@@ -62,8 +62,8 @@ public class BodyHealthHUD {
     private static final float[] prevHp       = new float[6];
 
     @SubscribeEvent
-    public void onRenderHud(RenderGuiLayerEvent.Post event) {
-        if (!event.getName().equals(VanillaGuiLayers.FOOD_LEVEL)) return;
+    public void onRenderHud(RenderGuiOverlayEvent.Post event) {
+        if (event.getOverlay() != VanillaGuiOverlay.FOOD_LEVEL.type()) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.options.hideGui) return;
         if (mc.player.getAbilities().instabuild) return;          // comme la barre de faim
