@@ -43,10 +43,11 @@ jobs:
             echo '--- Forge diag ---'
             echo "Resolved Forge: ${{ steps.forge.outputs.version }}"
             echo "gradle.properties forge_version:"; grep forge_version gradle.properties || true
-            for f in $(find ~/.gradle "$GITHUB_WORKSPACE/.gradle" -name '*.jar' 2>/dev/null | grep -i 'forge\|minecraft' | head -30); do
+            for f in $(find "$GITHUB_WORKSPACE/.gradle" -name '*.jar' 2>/dev/null | head -20); do
               n=$(unzip -l "$f" 2>/dev/null | grep -c 'RenderGuiOverlayEvent.class' || true)
               k=$(unzip -l "$f" 2>/dev/null | grep -c 'RegisterKeyMappingsEvent.class' || true)
-              echo "$n/$k  $(echo $f | sed 's#.*/\([^/]*/[^/]*\)$#\1#')"
+              g=$(unzip -l "$f" 2>/dev/null | grep -c 'gui/overlay/' || true)
+              echo "overlayEvt=$n keyEvt=$k overlayDir=$g  ${f#$GITHUB_WORKSPACE/}"
             done
             echo '--- compileClasspath (forge) ---'
             ./gradlew -q dependencies --configuration compileClasspath --no-daemon 2>&1 | grep -i 'forge\|minecraft' | head -12 || true
