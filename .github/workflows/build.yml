@@ -30,7 +30,7 @@ jobs:
         run: |
           chmod +x gradlew
           set -o pipefail
-          ./gradlew build --no-daemon --stacktrace  2>&1 | tee build.log
+          ./gradlew build --no-daemon --stacktrace -Pforge_version=${{ steps.forge.outputs.version }} 2>&1 | tee build.log
       - name: Report build errors
         if: failure()
         env:
@@ -43,10 +43,10 @@ jobs:
             echo '--- Forge diag ---'
             echo "Resolved Forge: ${{ steps.forge.outputs.version }}"
             echo "gradle.properties forge_version:"; grep forge_version gradle.properties || true
-            for f in $(find ~/.gradle -name 'forge-*.jar' 2>/dev/null); do
+            for f in $(find ~/.gradle "$GITHUB_WORKSPACE/.gradle" -name '*.jar' 2>/dev/null | grep -i 'forge\|minecraft' | head -30); do
               n=$(unzip -l "$f" 2>/dev/null | grep -c 'RenderGuiOverlayEvent.class' || true)
-              k=$(unzip -l "$f" 2>/dev/null | grep -c 'gui/overlay/VanillaGuiOverlay.class' || true)
-              echo "$(basename $f)  RenderGuiOverlayEvent.class=$n VanillaGuiOverlay.class=$k"
+              k=$(unzip -l "$f" 2>/dev/null | grep -c 'RegisterKeyMappingsEvent.class' || true)
+              echo "$n/$k  $(echo $f | sed 's#.*/\([^/]*/[^/]*\)$#\1#')"
             done
             echo '--- compileClasspath (forge) ---'
             ./gradlew -q dependencies --configuration compileClasspath --no-daemon 2>&1 | grep -i 'forge\|minecraft' | head -12 || true
