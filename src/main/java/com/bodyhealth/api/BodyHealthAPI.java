@@ -1,6 +1,6 @@
 package com.bodyhealth.api;
 
-import com.bodyhealth.common.BodyHealthAttachment;
+import com.bodyhealth.common.BodyHealthCapability;
 import com.bodyhealth.common.BodyHealthData;
 import com.bodyhealth.common.BodyPart;
 import com.bodyhealth.network.BodyHealthSyncManager;
