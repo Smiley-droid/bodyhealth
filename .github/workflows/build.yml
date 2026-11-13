@@ -40,12 +40,16 @@ jobs:
             echo "### Build failed — ${{ github.ref_name }} ${{ matrix.mc }}"
             echo '```'
             grep -nE "error:|What went wrong|Execution failed|FAILED|Caused by|Could not|cannot find symbol|symbol:|location:|incompatible types|does not override|no suitable" build.log | cut -c1-220 | head -60
-            echo '--- Forge jar: client classes ---'
+            echo '--- Forge diag ---'
             echo "Resolved Forge: ${{ steps.forge.outputs.version }}"
-            for f in $(find ~/.gradle ~/.m2 "$GITHUB_WORKSPACE/build" -name 'forge-*.jar' 2>/dev/null | head -6); do
-              echo "$f"
-              unzip -l "$f" 2>/dev/null | grep -E 'client/(gui/overlay|event/(Render|Add|Register|Customize))' | awk '{print "   " $4}' | head -40
+            echo "gradle.properties forge_version:"; grep forge_version gradle.properties
+            for f in $(find ~/.gradle -name 'forge-*.jar' 2>/dev/null); do
+              n=$(unzip -l "$f" 2>/dev/null | grep -c 'RenderGuiOverlayEvent.class')
+              k=$(unzip -l "$f" 2>/dev/null | grep -c 'gui/overlay/VanillaGuiOverlay.class')
+              echo "$(basename $f)  RenderGuiOverlayEvent.class=$n VanillaGuiOverlay.class=$k"
             done
+            echo '--- compileClasspath (forge) ---'
+            ./gradlew -q dependencies --configuration compileClasspath --no-daemon 2>&1 | grep -i 'forge\|minecraft' | head -12
             echo '```'
             echo '<details><summary>log without stack frames</summary>'
             echo
