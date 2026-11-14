@@ -20,8 +20,11 @@ public final class ClientInit {
     public static void init(IEventBus modBus) {
         HudSettings.load();
         modBus.addListener(BodyHealthKeyBindings::registerKeyMappings);
-        MinecraftForge.EVENT_BUS.register(new HideVanillaHealthEvent());
-        MinecraftForge.EVENT_BUS.register(new BodyHealthHUD());
+        // L'overlay est un calque du HUD, ajouté au-dessus des calques vanilla
+        final BodyHealthHUD hud = new BodyHealthHUD();
+        modBus.addListener((net.minecraftforge.client.event.AddGuiOverlayLayersEvent e) ->
+            e.getLayeredDraw().add(net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(
+                    com.bodyhealth.BodyHealthMod.MOD_ID, "hud"), hud::renderLayer));
         MinecraftForge.EVENT_BUS.register(new BodyHealthKeyBindings());
     }
 }

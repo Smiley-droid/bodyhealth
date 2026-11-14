@@ -11,8 +11,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.client.event.RenderGuiOverlayEvent;
-import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 
 /**
  * Overlay Body Health (coin bas-droit). Trois modes (HudSettings.mode) :
@@ -61,15 +59,14 @@ public class BodyHealthHUD {
     private static final long[]  lastDamageMs = new long[6];
     private static final float[] prevHp       = new float[6];
 
-    @SubscribeEvent
-    public void onRenderHud(RenderGuiOverlayEvent.Post event) {
-        if (event.getOverlay() != VanillaGuiOverlay.FOOD_LEVEL.type()) return;
+    /** Dessiné comme un calque du HUD (voir ClientInit : AddGuiOverlayLayersEvent). */
+    public void renderLayer(GuiGraphics gui, net.minecraft.client.DeltaTracker deltaTracker) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.options.hideGui) return;
         if (mc.player.getAbilities().instabuild) return;          // comme la barre de faim
         if (!ClientBodyHealthData.isModEnabled()) return;         // mod désactivé côté serveur
 
-        GuiGraphics gui  = event.getGuiGraphics();
+        
         Font        font = mc.font;
         int sw = mc.getWindow().getGuiScaledWidth();
         int sh = mc.getWindow().getGuiScaledHeight();
